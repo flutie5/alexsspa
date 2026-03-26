@@ -147,10 +147,22 @@ tr.ebitda-tr td{font-weight:500;}
 .bdarrow{font-size:0.72rem;color:#9a8e82;transition:transform 0.2s;display:inline-block;}
 .bdpanel{display:none;background:#fff;border:1px solid #e0d8cc;border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
 .bdpanel.open{display:block;}
-.bdcat{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 1rem 0.4rem;background:#f7f4ef;border-top:1px solid #e0d8cc;}
+.bdcat{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 1rem 0.4rem;background:#f7f4ef;border-top:1px solid #e0d8cc;cursor:pointer;user-select:none;transition:background 0.15s;}
+.bdcat:hover{background:#f0ebe3;}
 .bdcat-name{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:#5a5048;font-weight:500;}
+.bdcat-right{display:flex;align-items:center;gap:8px;}
 .bdcat-val{font-size:0.72rem;font-weight:500;color:#1a1410;}
-.bditem{display:grid;grid-template-columns:1fr 100px;gap:12px;align-items:center;padding:7px 1rem;border-bottom:1px solid #f5f0ea;}
+.bdcat-arrow{font-size:0.65rem;color:#9a8e82;transition:transform 0.2s;display:inline-block;}
+.bdcat-arrow.open{transform:rotate(180deg);}
+.bdcat-items{display:none;overflow:hidden;}
+.bdcat-items.open{display:block;}
+.bditem{display:grid;grid-template-columns:auto 1fr 100px;gap:8px;align-items:center;padding:7px 1rem;border-bottom:1px solid #f5f0ea;transition:opacity 0.2s;}
+.bditem.muted{opacity:0.35;}
+.bditem.muted .bditem-name,.bditem.muted .bditem-note,.bditem.muted .bdbar-wrap,.bditem.muted input{pointer-events:none;}
+.bd-x{width:18px;height:18px;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#9a8e82;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;line-height:1;}
+.bd-x:hover{background:#fcebeb;border-color:#e09090;color:#a03020;}
+.bd-x.muted{background:#eaf3de;border-color:#90c060;color:#5a8030;}
+.bd-x.muted:hover{background:#ddecc8;}
 .bditem-name{font-size:0.72rem;color:#1a1410;margin-bottom:2px;}
 .bditem-note{font-size:0.6rem;color:#9a8e82;font-style:italic;}
 .bdbar-wrap{margin-top:5px;height:5px;background:#f0ebe3;border-radius:3px;position:relative;overflow:hidden;}
@@ -715,15 +727,20 @@ function buildBdPanel() {
   BD.forEach((cat, ci) => {
     const catLo = cat.items.reduce((s,i)=>s+i.lo,0);
     const catHi = cat.items.reduce((s,i)=>s+i.hi,0);
-    html += `<div class="bdcat">
+    html += `<div class="bdcat" onclick="toggleCat(${ci})">
       <span class="bdcat-name">${cat.cat}</span>
-      <span class="bdcat-val" id="catval-${ci}">$${Math.round(catLo/1000)}K – $${Math.round(catHi/1000)}K</span>
+      <div class="bdcat-right">
+        <span class="bdcat-val" id="catval-${ci}">$${Math.round(catLo/1000)}K – $${Math.round(catHi/1000)}K</span>
+        <span class="bdcat-arrow" id="catarrow-${ci}">▼</span>
+      </div>
     </div>`;
+    html += `<div class="bdcat-items" id="catitems-${ci}">`;
 
     cat.items.forEach((item, ii) => {
       const wHi = Math.round(item.hi/maxHi*100);
       const wLo = Math.round(item.lo/maxHi*100);
       html += `<div class="bditem" id="bditem-${ci}-${ii}">
+        <button class="bd-x" id="bdx-${ci}-${ii}" onclick="toggleMute(${ci},${ii},event)" title="Exclude this item">×</button>
         <div style="flex:1;">
           <div class="bditem-name">${item.n}</div>
           ${item.note ? `<div class="bditem-note">${item.note}</div>` : ''}
@@ -758,6 +775,7 @@ function buildBdPanel() {
         </div>
       </div>`;
     });
+    html += `</div>`; // close bdcat-items
   });
 
   html += `<div class="bdfoot" id="bdfoot">
@@ -773,6 +791,28 @@ function buildBdPanel() {
 
   document.getElementById('bdPanel').innerHTML = html;
   bdRefreshTotals();
+}
+
+const bdMuted = {}; // track muted items: key = 'ci-ii'
+
+function toggleMute(ci, ii, ev) {
+  ev.stopPropagation();
+  const key = ci+'-'+ii;
+  bdMuted[key] = !bdMuted[key];
+  const item = document.getElementById('bditem-'+key);
+  const btn = document.getElementById('bdx-'+key);
+  item.classList.toggle('muted', bdMuted[key]);
+  btn.classList.toggle('muted', bdMuted[key]);
+  btn.textContent = bdMuted[key] ? '↩' : '×';
+  btn.title = bdMuted[key] ? 'Restore this item' : 'Exclude this item';
+  bdRefreshTotals();
+}
+
+function toggleCat(ci) {
+  const items = document.getElementById('catitems-'+ci);
+  const arrow = document.getElementById('catarrow-'+ci);
+  items.classList.toggle('open');
+  arrow.classList.toggle('open');
 }
 
 function bdUpdate(ci, ii) {
@@ -800,8 +840,10 @@ function bdUpdate(ci, ii) {
 function bdRefreshTotals() {
   let totalLo = 0, totalHi = 0;
   BD.forEach((cat, ci) => {
-    const catLo = cat.items.reduce((s,i)=>s+i.lo,0);
-    const catHi = cat.items.reduce((s,i)=>s+i.hi,0);
+    let catLo = 0, catHi = 0;
+    cat.items.forEach((item, ii) => {
+      if (!bdMuted[ci+'-'+ii]) { catLo += item.lo; catHi += item.hi; }
+    });
     totalLo += catLo; totalHi += catHi;
     const el = document.getElementById('catval-'+ci);
     if (el) el.textContent = '$'+Math.round(catLo/1000)+'K – $'+Math.round(catHi/1000)+'K';
