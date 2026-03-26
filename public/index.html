@@ -117,6 +117,12 @@ tr.deduct-tr td{color:#aaa;font-style:italic;}tr.deduct-tr td:first-child{color:
 tr.ebitda-tr td{font-weight:500;}
 .bc{width:55px;}.ib{height:4px;border-radius:2px;display:block;}
 .pos{color:#2d6e40;}.neg{color:#a03020;}.mut{color:#9a8e82;}
+.cost-input{width:90px;padding:2px 5px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;}
+.cost-name-input{width:140px;padding:2px 5px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#5a5048;}
+.add-row{cursor:pointer;color:#9a8e82;font-size:0.65rem;padding:6px 8px;transition:color 0.15s;}
+.add-row:hover{color:#5a5048;}
+.rm-custom{cursor:pointer;color:#d4c8b8;font-size:0.6rem;margin-left:4px;transition:color 0.15s;}
+.rm-custom:hover{color:#a03020;}
 .tag{display:inline-block;font-size:0.55rem;padding:1px 5px;border-radius:10px;margin-left:4px;}
 .tag-m{background:#e8d8c0;color:#6a4818;}.tag-d{background:#f0ebe3;color:#aaa;}
 
@@ -137,13 +143,12 @@ tr.ebitda-tr td{font-weight:500;}
 /* PAYBACK */
 .pbwrap{padding:0 1.5rem 8px;}
 .pbbox{background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:1rem 1.25rem;}
-.pb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.pb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:12px;}
 .pb-ttl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.pb-controls{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;}
 .pb-result{font-size:1.1rem;font-weight:500;}
 .pb-track{height:14px;background:#f0ebe3;border-radius:7px;overflow:hidden;position:relative;margin-bottom:10px;}
 .pb-fill{height:100%;border-radius:7px;transition:width 0.3s;}
-.pb-markers{position:relative;height:0;}
-.pb-marker{position:absolute;top:-14px;height:14px;width:2px;background:#2a2218;opacity:0.4;}
 .pb-labels{display:flex;justify-content:space-between;font-size:0.58rem;color:#9a8e82;margin-bottom:10px;}
 .pb-table{width:100%;border-collapse:collapse;}
 .pb-table th{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;color:#9a8e82;padding:4px 8px;text-align:right;border-bottom:1px solid #e0d8cc;font-weight:400;background:#faf7f2;}
@@ -330,7 +335,33 @@ tr.ebitda-tr td{font-weight:500;}
 </div></div>
 
 <!-- PAYBACK -->
-<div class="pbwrap"><div class="pbbox" id="paybackBox"></div></div>
+<div class="pbwrap"><div class="pbbox">
+  <div class="pb-top">
+    <div>
+      <div class="pb-ttl">Investor payback schedule</div>
+      <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">EBITDA applied against launch costs</div>
+    </div>
+    <div class="pb-controls">
+      <div class="cg">
+        <div class="cl">Launch costs</div>
+        <div class="cc">
+          <span style="font-size:0.65rem;color:#9a8e82;">$</span>
+          <input type="text" id="pbCapex" value="2,000,000"
+            style="width:110px;padding:3px 6px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;"
+            oninput="fmtCapex(this);go()" onblur="fmtCapex(this)">
+        </div>
+      </div>
+      <div class="cg">
+        <div class="cl">% of EBITDA to payback</div>
+        <div class="cc"><input type="range" min="10" max="100" step="5" id="pbPct" value="100" style="width:80px;" oninput="go()"><span class="cv" id="pbPctV">100%</span></div>
+      </div>
+    </div>
+    <div class="pb-result" id="pbResult"></div>
+  </div>
+  <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+  <div class="pb-labels"><span>$0</span><span id="pbBreakeven"></span></div>
+  <div id="pbTableWrap"></div>
+</div></div>
 
 <!-- BUILDOUT DROPDOWN -->
 <div class="bdwrap">
@@ -439,6 +470,43 @@ function setCompound(on, el) {
   go();
 }
 function v(id) { return +document.getElementById(id).value; }
+function fmtCapex(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  const num = parseInt(raw) || 0;
+  el.value = num.toLocaleString();
+}
+function getCapex() { return parseInt(document.getElementById('pbCapex').value.replace(/[^0-9]/g,'')) || 0; }
+
+// Custom fixed expense line items
+const customCosts = [];
+function addCustomCost() {
+  customCosts.push({ name: 'New expense', amount: 0 });
+  go();
+}
+function removeCustomCost(i) {
+  customCosts.splice(i, 1);
+  go();
+}
+function updateCustomName(i, val) { customCosts[i].name = val; }
+function updateCustomAmount(i, el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  customCosts[i].amount = parseInt(raw) || 0;
+  el.value = customCosts[i].amount.toLocaleString();
+  go();
+}
+
+// Cost overrides — user can edit any default cost
+const costOverrides = {};
+function overrideCost(key, el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  const num = parseInt(raw) || 0;
+  costOverrides[key] = num;
+  el.value = num.toLocaleString();
+  go();
+}
+function getCost(key, defaultVal) {
+  return costOverrides[key] !== undefined ? costOverrides[key] : defaultVal;
+}
 
 // Get values for a given year — current sliders for active year, saved state for others
 function yv(yr, id) {
@@ -653,39 +721,41 @@ function go() {
   (isMem && rev.podDeduct>0 ? `<tr class="deduct-tr"><td>↳ Pod sessions used by members <span class="tag tag-d">deducted</span></td><td class="bc"></td><td class="mut">—</td><td style="color:#aaa;font-style:italic;">(${fmtF(rev.podDeduct)} rack value)</td></tr>` : '') +
   `<tr class="tot"><td>Total revenue</td><td></td><td>100%</td><td>${fmtF(rev.total)}</td></tr>`;
 
-  // COST TABLE
-  const costRows = `
-    <tr><td>Base rent ($${costs.rentMo.toLocaleString()}/mo)</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.rent,costs.total)};background:#c47840;"></div></td>
-      <td class="mut">${pct(costs.rent,rev.total)}%</td><td class="neg">${fmtF(-costs.rent)}</td></tr>
-    <tr class="util-tr"><td>Utilities ($${costs.utilMo.toLocaleString()}/mo) ⚡</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.utils,costs.total)};background:#e89020;"></div></td>
-      <td style="color:#8a6010;">${pct(costs.utils,rev.total)}%</td>
-      <td style="color:#8a4010;">${fmtF(-costs.utils)}</td></tr>
-    <tr><td>Clinic staff + GM</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.clinic+costs.gm,costs.total)};background:#8b6030;"></div></td>
-      <td class="mut">${pct(costs.clinic+costs.gm,rev.total)}%</td><td class="neg">${fmtF(-(costs.clinic+costs.gm))}</td></tr>
-    <tr><td>Therapist base + perf. bonus</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.therapist+costs.bonus,costs.total)};background:#5a7a6a;"></div></td>
-      <td class="mut">${pct(costs.therapist+costs.bonus,rev.total)}%</td><td class="neg">${fmtF(-(costs.therapist+costs.bonus))}</td></tr>
-    <tr><td>Yoga instructors ($45/class · 4/day)</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.yoga,costs.total)};background:#8b3a3a;"></div></td>
-      <td class="mut">${pct(costs.yoga,rev.total)}%</td><td class="neg">${fmtF(-costs.yoga)}</td></tr>
-    <tr><td>COGS (supplies, linens, F&B, props)</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.cogs,costs.total)};background:#4a6a9a;"></div></td>
-      <td class="mut">${pct(costs.cogs,rev.total)}%</td><td class="neg">${fmtF(-costs.cogs)}</td></tr>
-    <tr><td>Marketing</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.mkt,costs.total)};background:#7a5a8a;"></div></td>
-      <td class="mut">${pct(costs.mkt,rev.total)}%</td><td class="neg">${fmtF(-costs.mkt)}</td></tr>
-    <tr><td>Insurance + software + misc</td>
-      <td class="bc"><div class="ib" style="width:${bw(costs.ins+costs.soft+costs.misc,costs.total)};background:#888;"></div></td>
-      <td class="mut">${pct(costs.ins+costs.soft+costs.misc,rev.total)}%</td>
-      <td class="neg">${fmtF(-(costs.ins+costs.soft+costs.misc))}</td></tr>
-    <tr class="tot"><td>Total costs</td><td></td><td>${pct(costs.total,rev.total)}%</td><td>${fmtF(-costs.total)}</td></tr>
-    <tr class="ebitda-tr" style="background:${ebitda>=0?'#eaf3de':'#fcebeb'};">
+  // COST TABLE — editable
+  const costLines = [
+    { name:'Base rent', key:'rent', def:costs.rent, color:'#c47840' },
+    { name:'Utilities', key:'utils', def:costs.utils, color:'#e89020', cls:'util-tr' },
+    { name:'Clinic staff + GM', key:'staffGm', def:costs.clinic+costs.gm, color:'#8b6030' },
+    { name:'Therapist base + bonus', key:'therapist', def:costs.therapist+costs.bonus, color:'#5a7a6a' },
+    { name:'Yoga instructors', key:'yoga', def:costs.yoga, color:'#8b3a3a' },
+    { name:'COGS', key:'cogs', def:costs.cogs, color:'#4a6a9a' },
+    { name:'Marketing', key:'mkt', def:costs.mkt, color:'#7a5a8a' },
+    { name:'Insurance + software + misc', key:'other', def:costs.ins+costs.soft+costs.misc, color:'#888' },
+  ];
+  let editTotal = 0;
+  const costRows = costLines.map(c => {
+    const val = getCost(c.key, Math.round(c.def));
+    editTotal += val;
+    return `<tr${c.cls?' class="'+c.cls+'"':''}>
+      <td>${c.name}</td>
+      <td class="bc"><div class="ib" style="width:${bw(val,costs.total)};background:${c.color};"></div></td>
+      <td class="mut">${pct(val,rev.total)}%</td>
+      <td><input class="cost-input" value="${val.toLocaleString()}" onchange="overrideCost('${c.key}',this)" onblur="overrideCost('${c.key}',this)"></td></tr>`;
+  }).join('') +
+  customCosts.map((c, i) => {
+    editTotal += c.amount;
+    return `<tr>
+      <td><input class="cost-name-input" value="${c.name}" onchange="updateCustomName(${i},this.value)"><span class="rm-custom" onclick="removeCustomCost(${i})">✕</span></td>
+      <td class="bc"><div class="ib" style="width:${bw(c.amount,costs.total)};background:#aaa;"></div></td>
+      <td class="mut">${pct(c.amount,rev.total)}%</td>
+      <td><input class="cost-input" value="${c.amount.toLocaleString()}" onchange="updateCustomAmount(${i},this)" onblur="updateCustomAmount(${i},this)"></td></tr>`;
+  }).join('') +
+  `<tr class="add-row"><td colspan="4" onclick="addCustomCost()">+ Add line item</td></tr>` +
+  `<tr class="tot"><td>Total costs</td><td></td><td>${pct(editTotal,rev.total)}%</td><td>${fmtF(-editTotal)}</td></tr>
+   <tr class="ebitda-tr" style="background:${(rev.total-editTotal)>=0?'#eaf3de':'#fcebeb'};">
       <td>EBITDA</td><td></td>
-      <td class="${ebitda>=0?'pos':'neg'}">${margin}%</td>
-      <td class="${ebitda>=0?'pos':'neg'}">${fmtF(ebitda)}</td></tr>`;
+      <td class="${(rev.total-editTotal)>=0?'pos':'neg'}">${pct(rev.total-editTotal,rev.total)}%</td>
+      <td class="${(rev.total-editTotal)>=0?'pos':'neg'}">${fmtF(rev.total-editTotal)}</td></tr>`;
 
   document.getElementById('tables').innerHTML = `
     <div class="sec">
@@ -693,7 +763,7 @@ function go() {
       <table><thead><tr><th>Stream</th><th></th><th>Mix</th><th>Amount</th></tr></thead><tbody>${revRows}</tbody></table>
     </div>
     <div class="sec">
-      <div class="sh"><div class="sh-t">Costs + EBITDA — ${YEARS[yr]}</div><div class="sh-v">${fmtF(costs.total)}</div></div>
+      <div class="sh"><div class="sh-t">Fixed expenses — ${YEARS[yr]}</div><div class="sh-v">${fmtF(costs.total)}</div></div>
       <table><thead><tr><th>Line item</th><th></th><th>% rev</th><th>Amount</th></tr></thead><tbody>${costRows}</tbody></table>
     </div>`;
 
@@ -721,43 +791,52 @@ function go() {
   document.getElementById('legend').innerHTML = activeStreams.map(s =>
     `<div class="li"><div class="ld" style="background:${colorMap[s]};"></div>${labelMap[s]}</div>`).join('');
 
-  // PAYBACK
-  // Get buildout midpoint (respects muted items)
-  let bdLo = 0, bdHi = 0;
-  BD.forEach((cat, ci) => {
-    cat.items.forEach((item, ii) => {
-      if (!bdMuted[ci+'-'+ii]) { bdLo += item.lo; bdHi += item.hi; }
-    });
-  });
-  const capex = Math.round((bdLo + bdHi) / 2);
+  // PAYBACK — compute EBITDA per year inline
+  const capex = getCapex() || 2000000;
+  const payPct = v('pbPct') / 100;
+  document.getElementById('pbPctV').textContent = v('pbPct') + '%';
 
-  const allCosts = [0,1,2,3,4].map(y => calcCosts(y, allRevs[y]));
-  let cumEbitda = 0, paybackYr = null, paybackRows = '';
+  const ebitdaByYear = [];
   for (let i = 0; i < 5; i++) {
-    const ebi = allRevs[i].total - allCosts[i].total;
-    cumEbitda += ebi;
-    const remaining = capex - cumEbitda;
+    const r = allRevs[i];
+    const rentMo = yv(i,'rent'), utilMo = yv(i,'util');
+    const wageInfl = [1.0, 1.03, 1.06, 1.09, 1.12][i];
+    const staffCost = 19000*12*wageInfl + 7500*12*wageInfl + 20000*12*wageInfl
+                    + (r.stdTxRev + r.masterRev + r.gardenRev)*0.115
+                    + 45*4*300;
+    const totalCost = rentMo*12 + utilMo*12 + staffCost
+                    + r.total*0.09
+                    + r.total*[0.07,0.06,0.05,0.045,0.04][i]
+                    + 14400 + 21600
+                    + r.total*0.025;
+    ebitdaByYear.push(r.total - totalCost);
+  }
+
+  let cumPaid = 0, paybackYr = null, paybackRows = '';
+  for (let i = 0; i < 5; i++) {
+    const ebi = ebitdaByYear[i];
+    const applied = ebi * payPct;
+    cumPaid += applied;
+    const remaining = capex - cumPaid;
     const paid = paybackYr !== null;
-    const hitThisYear = !paid && cumEbitda >= capex;
+    const hitThisYear = !paid && cumPaid >= capex;
     if (hitThisYear) paybackYr = i;
-    paybackRows += `<tr class="${hitThisYear?'pb-payback':cumEbitda<0?'pb-neg':''}">
+    paybackRows += `<tr class="${hitThisYear?'pb-payback':ebi<0?'pb-neg':''}">
       <td>${YEARS[i]}</td>
       <td>${fmtF(ebi)}</td>
-      <td>${fmtF(cumEbitda)}</td>
+      <td>${fmtF(applied)}</td>
+      <td>${fmtF(cumPaid)}</td>
       <td>${remaining > 0 ? fmtF(remaining) : paid || hitThisYear ? 'Paid back' : fmtF(remaining)}</td>
     </tr>`;
   }
 
-  // Interpolate months if payback within 5 years
   let paybackText, paybackColor;
   if (paybackYr !== null) {
-    const prevCum = paybackYr > 0 ? (cumEbitda - (allRevs[paybackYr].total - allCosts[paybackYr].total)) : 0;
-    // recalculate cumEbitda up to paybackYr
     let cum2 = 0;
-    for (let i = 0; i < paybackYr; i++) cum2 += allRevs[i].total - allCosts[i].total;
-    const ebiPayYr = allRevs[paybackYr].total - allCosts[paybackYr].total;
+    for (let i = 0; i < paybackYr; i++) cum2 += ebitdaByYear[i] * payPct;
+    const appliedPayYr = ebitdaByYear[paybackYr] * payPct;
     const remainAtStart = capex - cum2;
-    const monthsIn = Math.ceil(remainAtStart / ebiPayYr * 12);
+    const monthsIn = Math.ceil(remainAtStart / appliedPayYr * 12);
     const totalMonths = paybackYr * 12 + monthsIn;
     const yrs = Math.floor(totalMonths / 12);
     const mos = totalMonths % 12;
@@ -768,21 +847,15 @@ function go() {
     paybackColor = '#a03020';
   }
 
-  const pbPct = Math.min(100, Math.max(0, cumEbitda / capex * 100));
-  document.getElementById('paybackBox').innerHTML = `
-    <div class="pb-top">
-      <div>
-        <div class="pb-ttl">Investor payback period</div>
-        <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">Startup capital: ${fmt(capex)} (buildout midpoint) vs. cumulative net income</div>
-      </div>
-      <div class="pb-result" style="color:${paybackColor};">${paybackText}</div>
-    </div>
-    <div class="pb-track">
-      <div class="pb-fill" style="width:${pbPct}%;background:${paybackYr!==null?(paybackYr<=2?'#5a9a40':'#e8c060'):'#e06050'};"></div>
-    </div>
-    <div class="pb-labels"><span>$0</span><span>${fmt(capex)} (breakeven)</span></div>
+  const pbFillPct = Math.min(100, Math.max(0, cumPaid / capex * 100));
+  document.getElementById('pbResult').style.color = paybackColor;
+  document.getElementById('pbResult').textContent = paybackText;
+  document.getElementById('pbFill').style.width = pbFillPct + '%';
+  document.getElementById('pbFill').style.background = paybackYr !== null ? (paybackYr <= 2 ? '#5a9a40' : '#e8c060') : '#e06050';
+  document.getElementById('pbBreakeven').textContent = fmt(capex) + ' (breakeven)';
+  document.getElementById('pbTableWrap').innerHTML = `
     <table class="pb-table">
-      <thead><tr><th>Year</th><th>Net Income</th><th>Cumulative</th><th>Remaining</th></tr></thead>
+      <thead><tr><th>Year</th><th>EBITDA</th><th>Applied (${v('pbPct')}%)</th><th>Cumulative</th><th>Remaining</th></tr></thead>
       <tbody>${paybackRows}</tbody>
     </table>`;
 
@@ -982,8 +1055,6 @@ function bdRefreshTotals() {
 
   if (ftEl) ftEl.textContent = '$'+Math.round(totalLo/1000)+'K – $'+Math.round(totalHi/1000)+'K';
   if (frEl) frEl.textContent = 'raise target: $'+Math.round((totalHi*1.15+250000)/1000)+'K – $'+Math.round((totalHi*1.15+400000)/1000)+'K';
-  // Also refresh payback since buildout total changed
-  go();
 }
 
 go();
