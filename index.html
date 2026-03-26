@@ -337,7 +337,6 @@ tr.ebitda-tr td{font-weight:500;}
   <div class="bdhead" id="bdHead" onclick="toggleBd()">
     <div class="bdhead-left">
       <span class="bdhead-title">Estimated buildout costs</span>
-      <span class="bdhead-total" id="bdTotal">$1.72M – $2.56M</span>
       <span class="bdhead-note" id="bdNote">anchored to actual cost model · click to expand</span>
     </div>
     <div class="bdhead-right">
@@ -980,13 +979,11 @@ function bdRefreshTotals() {
 
   const ftEl = document.getElementById('bdfoot-total');
   const frEl = document.getElementById('bdfoot-raise');
-  const hdEl = document.getElementById('bdTotal');
-  const hnEl = document.getElementById('bdNote');
 
   if (ftEl) ftEl.textContent = '$'+Math.round(totalLo/1000)+'K – $'+Math.round(totalHi/1000)+'K';
   if (frEl) frEl.textContent = 'raise target: $'+Math.round((totalHi*1.15+250000)/1000)+'K – $'+Math.round((totalHi*1.15+400000)/1000)+'K';
-  if (hdEl) hdEl.textContent = '$'+Math.round(totalLo/1000)+'K – $'+Math.round(totalHi/1000)+'K';
-  if (hnEl) hnEl.textContent = 'midpoint ~$'+Math.round((totalLo+totalHi)/2/1000)+'K · anchored to actual cost model';
+  // Also refresh payback since buildout total changed
+  go();
 }
 
 go();
