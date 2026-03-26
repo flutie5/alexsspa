@@ -134,6 +134,25 @@ tr.ebitda-tr td{font-weight:500;}
 .li{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:#2a2218;}
 .ld{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
 
+/* PAYBACK */
+.pbwrap{padding:0 1.5rem 8px;}
+.pbbox{background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:1rem 1.25rem;}
+.pb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.pb-ttl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.pb-result{font-size:1.1rem;font-weight:500;}
+.pb-track{height:14px;background:#f0ebe3;border-radius:7px;overflow:hidden;position:relative;margin-bottom:10px;}
+.pb-fill{height:100%;border-radius:7px;transition:width 0.3s;}
+.pb-markers{position:relative;height:0;}
+.pb-marker{position:absolute;top:-14px;height:14px;width:2px;background:#2a2218;opacity:0.4;}
+.pb-labels{display:flex;justify-content:space-between;font-size:0.58rem;color:#9a8e82;margin-bottom:10px;}
+.pb-table{width:100%;border-collapse:collapse;}
+.pb-table th{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;color:#9a8e82;padding:4px 8px;text-align:right;border-bottom:1px solid #e0d8cc;font-weight:400;background:#faf7f2;}
+.pb-table th:first-child{text-align:left;}
+.pb-table td{padding:4px 8px;text-align:right;border-bottom:1px solid #f0ebe3;font-size:0.7rem;color:#1a1410;}
+.pb-table td:first-child{text-align:left;color:#5a5048;}
+.pb-table tr.pb-payback td{background:#eaf3de;font-weight:500;color:#2a5010;}
+.pb-table tr.pb-neg td{color:#a03020;}
+
 /* BUILDOUT DROPDOWN */
 .bdwrap{padding:0 1.5rem 8px;}
 .bdhead{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:0.65rem 1rem;cursor:pointer;user-select:none;transition:background 0.15s;}
@@ -309,6 +328,9 @@ tr.ebitda-tr td{font-weight:500;}
   <div class="chart-area" id="chartArea"></div>
   <div class="legend" id="legend"></div>
 </div></div>
+
+<!-- PAYBACK -->
+<div class="pbwrap"><div class="pbbox" id="paybackBox"></div></div>
 
 <!-- BUILDOUT DROPDOWN -->
 <div class="bdwrap">
@@ -699,6 +721,72 @@ function go() {
   document.getElementById('chartSub').textContent = fmt(allRevs[4].total)+' by 2031';
   document.getElementById('legend').innerHTML = activeStreams.map(s =>
     `<div class="li"><div class="ld" style="background:${colorMap[s]};"></div>${labelMap[s]}</div>`).join('');
+
+  // PAYBACK
+  // Get buildout midpoint (respects muted items)
+  let bdLo = 0, bdHi = 0;
+  BD.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      if (!bdMuted[ci+'-'+ii]) { bdLo += item.lo; bdHi += item.hi; }
+    });
+  });
+  const capex = Math.round((bdLo + bdHi) / 2);
+
+  const allCosts = [0,1,2,3,4].map(y => calcCosts(y, allRevs[y]));
+  let cumEbitda = 0, paybackYr = null, paybackRows = '';
+  for (let i = 0; i < 5; i++) {
+    const ebi = allRevs[i].total - allCosts[i].total;
+    cumEbitda += ebi;
+    const remaining = capex - cumEbitda;
+    const paid = paybackYr !== null;
+    const hitThisYear = !paid && cumEbitda >= capex;
+    if (hitThisYear) paybackYr = i;
+    paybackRows += `<tr class="${hitThisYear?'pb-payback':cumEbitda<0?'pb-neg':''}">
+      <td>${YEARS[i]}</td>
+      <td>${fmtF(allRevs[i].total)}</td>
+      <td>${fmtF(ebi)}</td>
+      <td>${fmtF(cumEbitda)}</td>
+      <td>${remaining > 0 ? fmtF(remaining) : paid || hitThisYear ? 'Paid back' : fmtF(remaining)}</td>
+    </tr>`;
+  }
+
+  // Interpolate months if payback within 5 years
+  let paybackText, paybackColor;
+  if (paybackYr !== null) {
+    const prevCum = paybackYr > 0 ? (cumEbitda - (allRevs[paybackYr].total - allCosts[paybackYr].total)) : 0;
+    // recalculate cumEbitda up to paybackYr
+    let cum2 = 0;
+    for (let i = 0; i < paybackYr; i++) cum2 += allRevs[i].total - allCosts[i].total;
+    const ebiPayYr = allRevs[paybackYr].total - allCosts[paybackYr].total;
+    const remainAtStart = capex - cum2;
+    const monthsIn = Math.ceil(remainAtStart / ebiPayYr * 12);
+    const totalMonths = paybackYr * 12 + monthsIn;
+    const yrs = Math.floor(totalMonths / 12);
+    const mos = totalMonths % 12;
+    paybackText = yrs > 0 ? yrs + 'yr ' + mos + 'mo' : mos + ' months';
+    paybackColor = paybackYr <= 2 ? '#2d6e40' : '#7a5010';
+  } else {
+    paybackText = '5+ years';
+    paybackColor = '#a03020';
+  }
+
+  const pbPct = Math.min(100, Math.max(0, cumEbitda / capex * 100));
+  document.getElementById('paybackBox').innerHTML = `
+    <div class="pb-top">
+      <div>
+        <div class="pb-ttl">Investor payback period</div>
+        <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">Startup capital: ${fmt(capex)} (buildout midpoint) vs. cumulative EBITDA</div>
+      </div>
+      <div class="pb-result" style="color:${paybackColor};">${paybackText}</div>
+    </div>
+    <div class="pb-track">
+      <div class="pb-fill" style="width:${pbPct}%;background:${paybackYr!==null?(paybackYr<=2?'#5a9a40':'#e8c060'):'#e06050'};"></div>
+    </div>
+    <div class="pb-labels"><span>$0</span><span>${fmt(capex)} (breakeven)</span></div>
+    <table class="pb-table">
+      <thead><tr><th>Year</th><th>Revenue</th><th>EBITDA</th><th>Cumulative</th><th>Remaining</th></tr></thead>
+      <tbody>${paybackRows}</tbody>
+    </table>`;
 
   document.getElementById('footnote').textContent =
     (isMem ? 'Membership $'+v('memFee')+'/mo: 3 pod sessions/week (156/yr). Pod sessions used by members deducted from walk-in pod revenue — no double counting. 20% service discount on ~30% of treatment bookings. '
