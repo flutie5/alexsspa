@@ -332,6 +332,29 @@ tr.ebitda-tr td{font-weight:500;}
 const YEARS   = ['2027','2028','2029','2030','2031'];
 let mode = 'none', yogaPrice = 28, gardenPrice = 120, yearIdx = 0, compound = false;
 
+// Per-year slider state
+const SLIDER_IDS = ['podRate','podUtil','yogaUtil','txUtil','evts','rent','util','memFee','memCount','memEvts'];
+const yearState = [{},{},{},{},{}]; // one object per year
+function saveYear(i) {
+  SLIDER_IDS.forEach(id => yearState[i][id] = v(id));
+  yearState[i].yogaPrice = yogaPrice;
+  yearState[i].gardenPrice = gardenPrice;
+}
+function loadYear(i) {
+  const s = yearState[i];
+  if (!s.podRate) return; // not yet saved
+  SLIDER_IDS.forEach(id => { document.getElementById(id).value = s[id]; });
+  yogaPrice = s.yogaPrice;
+  gardenPrice = s.gardenPrice;
+  // update yoga/garden button highlights
+  ['y28','y32','y38'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const yBtn = document.getElementById('y'+yogaPrice);
+  if (yBtn) yBtn.classList.add('on');
+  ['g95','g120','g145','g165'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const gBtn = document.getElementById('g'+gardenPrice);
+  if (gBtn) gBtn.classList.add('on');
+}
+
 function getGrowthFactor(yr) {
   const g = v('yoyGrowth') / 100;
   if (yr === 0 || g === 0) return 1;
@@ -381,7 +404,9 @@ function setGarden(p, el) {
   go();
 }
 function setYear(i, el) {
+  saveYear(yearIdx);
   yearIdx = i;
+  loadYear(i);
   document.querySelectorAll('.yb').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
   go();
@@ -394,17 +419,27 @@ function setCompound(on, el) {
 }
 function v(id) { return +document.getElementById(id).value; }
 
+// Get values for a given year — current sliders for active year, saved state for others
+function yv(yr, id) {
+  if (yr === yearIdx) return v(id);
+  return yearState[yr][id] !== undefined ? yearState[yr][id] : v(id);
+}
+function yyp(yr) { return yr === yearIdx ? yogaPrice : (yearState[yr].yogaPrice || yogaPrice); }
+function ygp(yr) { return yr === yearIdx ? gardenPrice : (yearState[yr].gardenPrice || gardenPrice); }
+
 // ── REVENUE ──────────────────────────────────────────────────────────────
 function calcRev(yr) {
   const gf = getGrowthFactor(yr);
 
-  const pu = Math.min(v('podUtil')  / 100, 0.95);
-  const yu = Math.min(v('yogaUtil') / 100, 0.95);
-  const tu = Math.min(v('txUtil')   / 100, 0.95);
-  const pr = v('podRate');
+  const pu = Math.min(yv(yr,'podUtil')  / 100, 0.95);
+  const yu = Math.min(yv(yr,'yogaUtil') / 100, 0.95);
+  const tu = Math.min(yv(yr,'txUtil')   / 100, 0.95);
+  const pr = yv(yr,'podRate');
+  const yp = yyp(yr);
+  const gp = ygp(yr);
   const isMem = mode === 'mem';
 
-  const evts = isMem ? v('memEvts') : v('evts');
+  const evts = isMem ? yv(yr,'memEvts') : yv(yr,'evts');
 
   // PODS: 4 units × $pr/hr × 8 slots/day × 365 days × utilization
   const totalPodCap = 4 * pr * 8 * 365;
@@ -413,30 +448,24 @@ function calcRev(yr) {
   if (!isMem) {
     podRev = totalPodCap * pu * gf;
   } else {
-    const mc = v('memCount');
-    const mf = v('memFee');
-    // Each member uses 3 sessions/week = 156/yr
+    const mc = yv(yr,'memCount');
+    const mf = yv(yr,'memFee');
     const sessYr = Math.min(mc * 156, totalPodCap * 0.60);
     podDeduct = sessYr * pr;
-    // Remaining pod capacity sold as walk-in
     const remainUtil = Math.max(0, pu - (sessYr / (4 * 8 * 365)));
     podRev = totalPodCap * remainUtil * gf;
     memRev = mc * mf * 12 * gf;
   }
 
   // YOGA: 28 cap × fill × price × 4 classes/day × 300 days
-  const yogaRev = 28 * yu * yogaPrice * 4 * 300 * gf;
+  const yogaRev = 28 * yu * yp * 4 * 300 * gf;
 
   // TREATMENTS — 20% discount applies to ~30% of bookings if membership
   const disc = isMem ? (1 - 0.30 * 0.20) : 1;
-  // 4 standard rooms: $155 blended, 50min sessions, 9hrs/day, 300 days
   const stdTxRev  = 4 * (9 / (50/60)) * 300 * 155 * tu * disc * gf;
-  // 1 master suite: $275, 60min, 8hrs/day, 300 days
   const masterRev = 1 * 8 * 300 * 275 * tu * disc * gf;
-  // Functional medicine: near-fully booked per P&L — capped at 88%
   const funcRev   = (6 / (50/60)) * 300 * 250 * 0.88 * gf;
-  // Garden massage: 4 stations, 75min, 9hrs, 280 outdoor days
-  const gardenRev = 4 * (9 / (75/60)) * 280 * gardenPrice * tu * disc * gf;
+  const gardenRev = 4 * (9 / (75/60)) * 280 * gp * tu * disc * gf;
 
   // EVENTS: avg $3,800 each
   const eventRev = evts * 3800 * gf;
@@ -461,7 +490,7 @@ function calcRev(yr) {
 
 // ── COSTS ────────────────────────────────────────────────────────────────
 function calcCosts(yr, rev) {
-  const rentMo = v('rent'), utilMo = v('util');
+  const rentMo = yv(yr,'rent'), utilMo = yv(yr,'util');
   const rent   = rentMo * 12;
   const utils  = utilMo * 12;
   // Staff: fixed regardless of year (slight annual wage inflation)
