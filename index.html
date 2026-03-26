@@ -242,6 +242,17 @@ tr.ebitda-tr td{font-weight:500;}
     <div class="cl">Events / yr</div>
     <div class="cc"><input type="range" min="0" max="60" step="2" id="evts" value="16" style="width:65px;" oninput="go()"><span class="cv" id="evtsV">16</span></div>
   </div>
+  <div class="cg">
+    <div class="cl">YoY growth</div>
+    <div class="cc"><input type="range" min="0" max="25" step="1" id="yoyGrowth" value="0" style="width:70px;" oninput="go()"><span class="cv" id="yoyGrowthV">0%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Compound</div>
+    <div class="trow">
+      <button class="tb on" id="compOff" onclick="setCompound(false,this)">Off</button>
+      <button class="tb" id="compOn" onclick="setCompound(true,this)">On</button>
+    </div>
+  </div>
   <div class="ybtns">
     <button class="yb on" onclick="setYear(0,this)">2027</button>
     <button class="yb" onclick="setYear(1,this)">2028</button>
@@ -319,14 +330,13 @@ tr.ebitda-tr td{font-weight:500;}
 
 <script>
 const YEARS   = ['2027','2028','2029','2030','2031'];
-// Ramp = fraction of slider value actually achieved each year.
-// Year 1 (2027) = partial year open + business ramp = 45% of steady state
-// Year 2 (2028) = first full year, still ramping = 75%
-// Year 3 (2029) = approaching steady state = 90%
-// Year 4+ (2030/2031) = exactly what the sliders say (1.0) — NO upward balloon
-const RAMP = [0.45, 0.75, 0.90, 1.00, 1.00];
+let mode = 'none', yogaPrice = 28, gardenPrice = 120, yearIdx = 0, compound = false;
 
-let mode = 'none', yogaPrice = 28, gardenPrice = 120, yearIdx = 0;
+function getGrowthFactor(yr) {
+  const g = v('yoyGrowth') / 100;
+  if (yr === 0 || g === 0) return 1;
+  return compound ? Math.pow(1 + g, yr) : 1 + g * yr;
+}
 
 // ── COLORS — maximally distinct ──────────────────────────────────────────
 const C = {
@@ -376,60 +386,63 @@ function setYear(i, el) {
   el.classList.add('on');
   go();
 }
+function setCompound(on, el) {
+  compound = on;
+  document.getElementById('compOff').classList.toggle('on', !on);
+  document.getElementById('compOn').classList.toggle('on', on);
+  go();
+}
 function v(id) { return +document.getElementById(id).value; }
 
 // ── REVENUE ──────────────────────────────────────────────────────────────
 function calcRev(yr) {
-  const ramp = RAMP[yr]; // 0–1 scalar applied to utilization rates
+  const gf = getGrowthFactor(yr);
 
-  // Utilization: slider value IS the target rate. Ramp reduces it in early years.
-  const pu = Math.min(v('podUtil')  / 100 * ramp, 0.95);
-  const yu = Math.min(v('yogaUtil') / 100 * ramp, 0.95);
-  const tu = Math.min(v('txUtil')   / 100 * ramp, 0.95);
+  const pu = Math.min(v('podUtil')  / 100, 0.95);
+  const yu = Math.min(v('yogaUtil') / 100, 0.95);
+  const tu = Math.min(v('txUtil')   / 100, 0.95);
   const pr = v('podRate');
   const isMem = mode === 'mem';
 
-  // Events: slider = steady-state events/yr, ramp scales early years
-  const evts = Math.round((isMem ? v('memEvts') : v('evts')) * ramp);
+  const evts = isMem ? v('memEvts') : v('evts');
 
   // PODS: 4 units × $pr/hr × 8 slots/day × 365 days × utilization
   const totalPodCap = 4 * pr * 8 * 365;
   let podRev = 0, memRev = 0, podDeduct = 0;
 
   if (!isMem) {
-    podRev = totalPodCap * pu;
+    podRev = totalPodCap * pu * gf;
   } else {
-    // Member count: slider = steady-state count, ramp scales early years
-    const mc = Math.round(v('memCount') * ramp);
+    const mc = v('memCount');
     const mf = v('memFee');
     // Each member uses 3 sessions/week = 156/yr
     const sessYr = Math.min(mc * 156, totalPodCap * 0.60);
     podDeduct = sessYr * pr;
     // Remaining pod capacity sold as walk-in
     const remainUtil = Math.max(0, pu - (sessYr / (4 * 8 * 365)));
-    podRev = totalPodCap * remainUtil;
-    memRev = mc * mf * 12;
+    podRev = totalPodCap * remainUtil * gf;
+    memRev = mc * mf * 12 * gf;
   }
 
   // YOGA: 28 cap × fill × price × 4 classes/day × 300 days
-  const yogaRev = 28 * yu * yogaPrice * 4 * 300;
+  const yogaRev = 28 * yu * yogaPrice * 4 * 300 * gf;
 
   // TREATMENTS — 20% discount applies to ~30% of bookings if membership
   const disc = isMem ? (1 - 0.30 * 0.20) : 1;
   // 4 standard rooms: $155 blended, 50min sessions, 9hrs/day, 300 days
-  const stdTxRev  = 4 * (9 / (50/60)) * 300 * 155 * tu * disc;
+  const stdTxRev  = 4 * (9 / (50/60)) * 300 * 155 * tu * disc * gf;
   // 1 master suite: $275, 60min, 8hrs/day, 300 days
-  const masterRev = 1 * 8 * 300 * 275 * tu * disc;
-  // Functional medicine: near-fully booked per P&L — capped at 88%, ramp applied
-  const funcRev   = (6 / (50/60)) * 300 * 250 * Math.min(0.88, 0.88 * ramp);
+  const masterRev = 1 * 8 * 300 * 275 * tu * disc * gf;
+  // Functional medicine: near-fully booked per P&L — capped at 88%
+  const funcRev   = (6 / (50/60)) * 300 * 250 * 0.88 * gf;
   // Garden massage: 4 stations, 75min, 9hrs, 280 outdoor days
-  const gardenRev = 4 * (9 / (75/60)) * 280 * gardenPrice * tu * disc;
+  const gardenRev = 4 * (9 / (75/60)) * 280 * gardenPrice * tu * disc * gf;
 
   // EVENTS: avg $3,800 each
-  const eventRev = evts * 3800;
+  const eventRev = evts * 3800 * gf;
 
-  // F&B kiosk: 60 covers × $18 avg × 250 days — ramp applied
-  const fnbRev = 60 * 18 * 250 * ramp * 0.5;
+  // F&B kiosk: 60 covers × $18 avg × 250 days
+  const fnbRev = 60 * 18 * 250 * 0.5 * gf;
 
   // RETAIL: 9% of service revenue (per actual P&L ratio)
   const svcRev = podRev + yogaRev + stdTxRev + masterRev + funcRev + gardenRev;
@@ -438,7 +451,7 @@ function calcRev(yr) {
   const total = podRev + memRev + yogaRev + stdTxRev + masterRev +
                 funcRev + gardenRev + eventRev + fnbRev + retailRev;
 
-  const mc  = isMem ? Math.round(v('memCount') * ramp) : 0;
+  const mc  = isMem ? v('memCount') : 0;
   const mrr = isMem ? mc * v('memFee') : 0;
 
   return { podRev, podDeduct, memRev, yogaRev, stdTxRev, masterRev,
@@ -448,7 +461,6 @@ function calcRev(yr) {
 
 // ── COSTS ────────────────────────────────────────────────────────────────
 function calcCosts(yr, rev) {
-  const ramp = RAMP[yr];
   const rentMo = v('rent'), utilMo = v('util');
   const rent   = rentMo * 12;
   const utils  = utilMo * 12;
@@ -490,6 +502,7 @@ function go() {
   document.getElementById('memFeeV').textContent   = '$'+v('memFee');
   document.getElementById('memCountV').textContent = v('memCount');
   document.getElementById('memEvtsV').textContent  = v('memEvts');
+  document.getElementById('yoyGrowthV').textContent = v('yoyGrowth')+'%';
 
   const rentMo = v('rent'), utilMo = v('util');
   document.getElementById('rentV').textContent = '$'+rentMo.toLocaleString();
@@ -662,7 +675,7 @@ function go() {
     (isMem ? 'Membership $'+v('memFee')+'/mo: 3 pod sessions/week (156/yr). Pod sessions used by members deducted from walk-in pod revenue — no double counting. 20% service discount on ~30% of treatment bookings. '
            : 'No membership — all pod revenue at rack rate. ') +
     'Revenue anchored to Jan–Feb 2026 P&L. Rates: bodywork $155, master suite $275, functional medicine $250, garden massage $'+gardenPrice+'. ' +
-    'Year 2027 = partial year (mid-year open, 55% factor applied). EBITDA excludes capex, depreciation, debt service.';
+    'YoY growth: '+v('yoyGrowth')+'%'+(compound?' (compounding)':' (linear)')+'. EBITDA excludes capex, depreciation, debt service.';
 }
 
 // ── BUILDOUT DROPDOWN ────────────────────────────────────────────────────
