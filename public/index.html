@@ -743,7 +743,6 @@ function go() {
     if (hitThisYear) paybackYr = i;
     paybackRows += `<tr class="${hitThisYear?'pb-payback':cumEbitda<0?'pb-neg':''}">
       <td>${YEARS[i]}</td>
-      <td>${fmtF(allRevs[i].total)}</td>
       <td>${fmtF(ebi)}</td>
       <td>${fmtF(cumEbitda)}</td>
       <td>${remaining > 0 ? fmtF(remaining) : paid || hitThisYear ? 'Paid back' : fmtF(remaining)}</td>
@@ -775,7 +774,7 @@ function go() {
     <div class="pb-top">
       <div>
         <div class="pb-ttl">Investor payback period</div>
-        <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">Startup capital: ${fmt(capex)} (buildout midpoint) vs. cumulative EBITDA</div>
+        <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">Startup capital: ${fmt(capex)} (buildout midpoint) vs. cumulative net income</div>
       </div>
       <div class="pb-result" style="color:${paybackColor};">${paybackText}</div>
     </div>
@@ -784,7 +783,7 @@ function go() {
     </div>
     <div class="pb-labels"><span>$0</span><span>${fmt(capex)} (breakeven)</span></div>
     <table class="pb-table">
-      <thead><tr><th>Year</th><th>Revenue</th><th>EBITDA</th><th>Cumulative</th><th>Remaining</th></tr></thead>
+      <thead><tr><th>Year</th><th>Net Income</th><th>Cumulative</th><th>Remaining</th></tr></thead>
       <tbody>${paybackRows}</tbody>
     </table>`;
 
