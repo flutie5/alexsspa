@@ -334,7 +334,6 @@ const C = {
   mem:    '#c8a020',
   yoga:   '#c03a3a',
   stdTx:  '#2a7a5a',
-  master: '#1a5a8a',
   func:   '#6a3a8a',
   garden: '#5a8a20',
   events: '#c04878',
@@ -343,8 +342,8 @@ const C = {
 };
 const L = {
   pod:'Pod sessions (walk-in)', mem:'Membership fees',
-  yoga:'Yoga room', stdTx:'Treatment rooms (4)',
-  master:'Master suite', func:'Functional medicine',
+  yoga:'Yoga room', stdTx:'Treatment rooms (5)',
+  func:'Functional medicine',
   garden:'Garden massage', events:'Private events',
   fnb:'F&B kiosk', retail:'Retail / apothecary'
 };
@@ -542,10 +541,10 @@ function go() {
       : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${v('podUtil')}% util · $${v('podRate')}/hr</div></div>`}`;
 
   // GAUGE ROW
-  const streamOrder = ['podRev','memRev','yogaRev','stdTxRev','masterRev','funcRev','gardenRev','eventRev','fnbRev','retailRev'];
-  const streamMap   = {podRev:rev.podRev,memRev:rev.memRev,yogaRev:rev.yogaRev,stdTxRev:rev.stdTxRev,masterRev:rev.masterRev,funcRev:rev.funcRev,gardenRev:rev.gardenRev,eventRev:rev.eventRev,fnbRev:rev.fnbRev,retailRev:rev.retailRev};
-  const colorMap    = {podRev:C.pod,memRev:C.mem,yogaRev:C.yoga,stdTxRev:C.stdTx,masterRev:C.master,funcRev:C.func,gardenRev:C.garden,eventRev:C.events,fnbRev:C.fnb,retailRev:C.retail};
-  const labelMap    = {podRev:L.pod,memRev:L.mem,yogaRev:L.yoga,stdTxRev:L.stdTx,masterRev:L.master,funcRev:L.func,gardenRev:L.garden,eventRev:L.events,fnbRev:L.fnb,retailRev:L.retail};
+  const streamOrder = ['podRev','memRev','yogaRev','stdTxRev','funcRev','gardenRev','eventRev','fnbRev','retailRev'];
+  const streamMap   = {podRev:rev.podRev,memRev:rev.memRev,yogaRev:rev.yogaRev,stdTxRev:rev.stdTxRev+rev.masterRev,funcRev:rev.funcRev,gardenRev:rev.gardenRev,eventRev:rev.eventRev,fnbRev:rev.fnbRev,retailRev:rev.retailRev};
+  const colorMap    = {podRev:C.pod,memRev:C.mem,yogaRev:C.yoga,stdTxRev:C.stdTx,funcRev:C.func,gardenRev:C.garden,eventRev:C.events,fnbRev:C.fnb,retailRev:C.retail};
+  const labelMap    = {podRev:L.pod,memRev:L.mem,yogaRev:L.yoga,stdTxRev:L.stdTx,funcRev:L.func,gardenRev:L.garden,eventRev:L.events,fnbRev:L.fnb,retailRev:L.retail};
   const activeStreams = streamOrder.filter(s => streamMap[s] > 0);
 
   const sbars = activeStreams.map(s=>`
