@@ -230,6 +230,10 @@ tr.ebitda-tr td{font-weight:500;}
 <!-- REVENUE CONTROLS -->
 <div class="ctrl">
   <div class="cg">
+    <div class="cl">Pods</div>
+    <div class="cc"><input type="range" min="1" max="4" step="1" id="podCount" value="4" style="width:50px;" oninput="go()"><span class="cv" id="podCountV">4</span></div>
+  </div>
+  <div class="cg">
     <div class="cl">Pod rate / hr</div>
     <div class="cc"><input type="range" min="75" max="200" step="5" id="podRate" value="125" style="width:78px;" oninput="go()"><span class="cv" id="podRateV">$125</span></div>
   </div>
@@ -259,8 +263,20 @@ tr.ebitda-tr td{font-weight:500;}
     </div>
   </div>
   <div class="cg">
-    <div class="cl">Treatment util</div>
+    <div class="cl">Therapists on site</div>
+    <div class="cc"><input type="range" min="1" max="6" step="1" id="txStaff" value="4" style="width:55px;" oninput="go()"><span class="cv" id="txStaffV">4</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Therapist util</div>
     <div class="cc"><input type="range" min="10" max="90" step="5" id="txUtil" value="65" style="width:78px;" oninput="go()"><span class="cv" id="txUtilV">65%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">F&B covers / day</div>
+    <div class="cc"><input type="range" min="0" max="120" step="5" id="fnbCovers" value="60" style="width:70px;" oninput="go()"><span class="cv" id="fnbCoversV">60</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">F&B avg ticket</div>
+    <div class="cc"><input type="range" min="8" max="35" step="1" id="fnbTicket" value="18" style="width:65px;" oninput="go()"><span class="cv" id="fnbTicketV">$18</span></div>
   </div>
   <div class="cg" id="evtCtrl">
     <div class="cl">Events / yr</div>
@@ -271,11 +287,8 @@ tr.ebitda-tr td{font-weight:500;}
     <div class="cc"><input type="range" min="0" max="25" step="1" id="yoyGrowth" value="0" style="width:70px;" oninput="go()"><span class="cv" id="yoyGrowthV">0%</span></div>
   </div>
   <div class="cg">
-    <div class="cl">Compound</div>
-    <div class="trow">
-      <button class="tb on" id="compOff" onclick="setCompound(false,this)">Off</button>
-      <button class="tb" id="compOn" onclick="setCompound(true,this)">On</button>
-    </div>
+    <div class="cl">Compound growth / yr</div>
+    <div class="cc"><input type="range" min="-10" max="30" step="1" id="compGrowth" value="0" style="width:80px;" oninput="go()"><span class="cv" id="compGrowthV">0%</span></div>
   </div>
   <div class="ybtns">
     <button class="yb on" onclick="setYear(0,this)">2027</button>
@@ -309,7 +322,7 @@ tr.ebitda-tr td{font-weight:500;}
   <div class="cb-label">Cost controls</div>
   <div class="cg">
     <div class="cl" style="color:#8a6010;">Base rent / mo</div>
-    <div class="cc"><input type="range" min="8000" max="30000" step="500" id="rent" value="14000" style="width:85px;accent-color:#8b5030;" oninput="go()"><span class="cv" id="rentV">$14,000</span></div>
+    <div class="cc"><input type="range" min="8000" max="60000" step="500" id="rent" value="14000" style="width:85px;accent-color:#8b5030;" oninput="go()"><span class="cv" id="rentV">$14,000</span></div>
   </div>
   <div class="cg">
     <div class="cl" style="color:#c06010;">Utilities / mo ⚡</div>
@@ -382,10 +395,10 @@ tr.ebitda-tr td{font-weight:500;}
 
 <script>
 const YEARS   = ['2027','2028','2029','2030','2031'];
-let mode = 'none', yogaPrice = 28, gardenPrice = 120, yearIdx = 0, compound = false;
+let mode = 'none', yogaPrice = 28, gardenPrice = 120, yearIdx = 0;
 
 // Per-year slider state
-const SLIDER_IDS = ['podRate','podUtil','yogaUtil','txUtil','evts','rent','util','memFee','memCount','memEvts'];
+const SLIDER_IDS = ['podCount','podRate','podUtil','yogaUtil','txStaff','txUtil','fnbCovers','fnbTicket','evts','rent','util','memFee','memCount','memEvts'];
 const yearState = [{},{},{},{},{}]; // one object per year
 function saveYear(i) {
   SLIDER_IDS.forEach(id => yearState[i][id] = v(id));
@@ -410,7 +423,10 @@ function loadYear(i) {
 function getGrowthFactor(yr) {
   const g = v('yoyGrowth') / 100;
   if (yr === 0 || g === 0) return 1;
-  return compound ? Math.pow(1 + g, yr) : 1 + g * yr;
+  const c = v('compGrowth') / 100;
+  const linear = 1 + g * yr;
+  const compounded = c !== 0 ? Math.pow(1 + c, yr) : 1;
+  return linear * compounded;
 }
 
 // ── COLORS — maximally distinct ──────────────────────────────────────────
@@ -461,12 +477,6 @@ function setYear(i, el) {
   loadYear(i);
   document.querySelectorAll('.yb').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
-  go();
-}
-function setCompound(on, el) {
-  compound = on;
-  document.getElementById('compOff').classList.toggle('on', !on);
-  document.getElementById('compOn').classList.toggle('on', on);
   go();
 }
 function v(id) { return +document.getElementById(id).value; }
@@ -530,8 +540,9 @@ function calcRev(yr) {
 
   const evts = isMem ? yv(yr,'memEvts') : yv(yr,'evts');
 
-  // PODS: 4 units × $pr/hr × 8 slots/day × 365 days × utilization
-  const totalPodCap = 4 * pr * 8 * 365;
+  // PODS: N units × $pr/hr × 8 slots/day × 365 days × utilization
+  const pc = yv(yr,'podCount');
+  const totalPodCap = pc * pr * 8 * 365;
   let podRev = 0, memRev = 0, podDeduct = 0;
 
   if (!isMem) {
@@ -541,7 +552,7 @@ function calcRev(yr) {
     const mf = yv(yr,'memFee');
     const sessYr = Math.min(mc * 156, totalPodCap * 0.60);
     podDeduct = sessYr * pr;
-    const remainUtil = Math.max(0, pu - (sessYr / (4 * 8 * 365)));
+    const remainUtil = Math.max(0, pu - (sessYr / (pc * 8 * 365)));
     podRev = totalPodCap * remainUtil * gf;
     memRev = mc * mf * 12 * gf;
   }
@@ -549,18 +560,27 @@ function calcRev(yr) {
   // YOGA: 28 cap × fill × price × 4 classes/day × 300 days
   const yogaRev = 28 * yu * yp * 4 * 300 * gf;
 
-  // TREATMENTS — 20% discount applies to ~30% of bookings if membership
+  // TREATMENTS — therapist-driven (in-room + master + garden share the same therapists)
+  // Facials are the exception — separate esthetician, not from the therapist pool
   const disc = isMem ? (1 - 0.30 * 0.20) : 1;
-  const stdTxRev  = 4 * (9 / (50/60)) * 300 * 155 * tu * disc * gf;
-  const masterRev = 1 * 8 * 300 * 275 * tu * disc * gf;
+  const txS = yv(yr,'txStaff');
+  // Each therapist works 8 hrs/day, 300 days/yr. Allocate time across service types:
+  // ~60% in-room massage (50 min ea), ~10% master/specialty (60 min ea), ~30% garden (75 min ea)
+  const therapistHrsYr = txS * 8 * 300 * tu;
+  const inRoomHrs   = therapistHrsYr * 0.60;
+  const masterHrs   = therapistHrsYr * 0.10;
+  const gardenHrs   = therapistHrsYr * 0.30;
+  const stdTxRev  = (inRoomHrs / (50/60)) * 155 * disc * gf;
+  const masterRev = (masterHrs / 1) * 275 * disc * gf;
   const funcRev   = (6 / (50/60)) * 300 * 250 * 0.88 * gf;
-  const gardenRev = 4 * (9 / (75/60)) * 280 * gp * tu * disc * gf;
+  const gardenDays = 280; // seasonal
+  const gardenRev = (gardenHrs * (gardenDays/300)) / (75/60) * gp * disc * gf;
 
   // EVENTS: avg $3,800 each
   const eventRev = evts * 3800 * gf;
 
-  // F&B kiosk: 60 covers × $18 avg × 250 days
-  const fnbRev = 60 * 18 * 250 * 0.5 * gf;
+  // F&B kiosk: covers/day × avg ticket × 250 operating days
+  const fnbRev = yv(yr,'fnbCovers') * yv(yr,'fnbTicket') * 250 * gf;
 
   // RETAIL: 9% of service revenue (per actual P&L ratio)
   const svcRev = podRev + yogaRev + stdTxRev + masterRev + funcRev + gardenRev;
@@ -612,15 +632,21 @@ function bw(v,mx) { return Math.min(100,Math.round(Math.abs(v)/mx*100))+'%'; }
 // ── MAIN RENDER ──────────────────────────────────────────────────────────
 function go() {
   // update display values
+  document.getElementById('podCountV').textContent = v('podCount');
   document.getElementById('podRateV').textContent  = '$'+v('podRate');
   document.getElementById('podUtilV').textContent  = v('podUtil')+'%';
   document.getElementById('yogaUtilV').textContent = v('yogaUtil')+'%';
+  document.getElementById('txStaffV').textContent  = v('txStaff');
   document.getElementById('txUtilV').textContent   = v('txUtil')+'%';
+  document.getElementById('fnbCoversV').textContent = v('fnbCovers');
+  document.getElementById('fnbTicketV').textContent = '$'+v('fnbTicket');
   document.getElementById('evtsV').textContent     = v('evts');
   document.getElementById('memFeeV').textContent   = '$'+v('memFee');
   document.getElementById('memCountV').textContent = v('memCount');
   document.getElementById('memEvtsV').textContent  = v('memEvts');
   document.getElementById('yoyGrowthV').textContent = v('yoyGrowth')+'%';
+  const cg = v('compGrowth');
+  document.getElementById('compGrowthV').textContent = (cg > 0 ? '+' : '') + cg + '%';
 
   const rentMo = v('rent'), utilMo = v('util');
   document.getElementById('rentV').textContent = '$'+rentMo.toLocaleString();
@@ -669,7 +695,7 @@ function go() {
     <div class="kpi"><div class="kl">Labor % rev</div><div class="kv">${labPct}%</div><div class="ks">target &lt;35%</div></div>
     ${isMem
       ? `<div class="kpi mem"><div class="kl">Membership MRR</div><div class="kv">${fmt(rev.mrr)}</div><div class="ks">${rev.mc} members · $${v('memFee')}/mo</div></div>`
-      : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${v('podUtil')}% util · $${v('podRate')}/hr</div></div>`}`;
+      : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${v('podCount')} pods · ${v('podUtil')}% util · $${v('podRate')}/hr</div></div>`}`;
 
   // GAUGE ROW
   const streamOrder = ['podRev','memRev','yogaRev','stdTxRev','funcRev','gardenRev','eventRev','fnbRev','retailRev'];
@@ -863,7 +889,7 @@ function go() {
     (isMem ? 'Membership $'+v('memFee')+'/mo: 3 pod sessions/week (156/yr). Pod sessions used by members deducted from walk-in pod revenue — no double counting. 20% service discount on ~30% of treatment bookings. '
            : 'No membership — all pod revenue at rack rate. ') +
     'Revenue anchored to Jan–Feb 2026 P&L. Rates: bodywork $155, master suite $275, functional medicine $250, garden massage $'+gardenPrice+'. ' +
-    'YoY growth: '+v('yoyGrowth')+'%'+(compound?' (compounding)':' (linear)')+'. EBITDA excludes capex, depreciation, debt service.';
+    'YoY growth: '+v('yoyGrowth')+'%'+(v('compGrowth')!==0?' + '+v('compGrowth')+'% compound':'')+'. EBITDA excludes capex, depreciation, debt service.';
 }
 
 // ── BUILDOUT DROPDOWN ────────────────────────────────────────────────────
