@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<!-- v6.1 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Den Mother — Model v6</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:#f7f4ef;color:#1a1410;font-size:13px;}
+
+/* HEADER */
+.hdr{padding:1rem 1.5rem 0.75rem;border-bottom:1px solid #e0d8cc;background:#fff;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
+.hdr-left{flex:1;min-width:200px;}
+.h-title{font-size:1.05rem;font-weight:500;margin-bottom:2px;}
+.h-sub{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#9a8e82;margin-bottom:8px;}
+.bline{display:flex;gap:0;flex-wrap:wrap;}
+.bl{padding:5px 12px;background:#f7f4ef;border:1px solid #e0d8cc;border-right:none;display:flex;flex-direction:column;gap:1px;}
+.bl:first-child{border-radius:4px 0 0 4px;}
+.bl:last-child{border-right:1px solid #e0d8cc;border-radius:0 4px 4px 0;}
+.bl-l{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.bl-v{font-size:0.78rem;font-weight:500;color:#1a1410;}
+.bl-n{font-size:0.57rem;color:#b8a898;font-style:italic;}
+
+/* MEMBERSHIP TOGGLE */
+.mem-toggle{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.mbtns{display:flex;}
+.mbtn{padding:7px 16px;border:1px solid #d4c8b8;background:#ede8de;color:#7a6e62;font-family:'Jost',sans-serif;font-size:0.7rem;cursor:pointer;transition:all 0.15s;border-right:none;}
+.mbtn:first-child{border-radius:4px 0 0 4px;}
+.mbtn:last-child{border-right:1px solid #d4c8b8;border-radius:0 4px 4px 0;}
+.mbtn.on{background:#2a2218;color:#f5e5c0;border-color:#2a2218;}
+.mem-info{background:#f0ede6;border:1px solid #d4c0a0;border-radius:5px;padding:5px 10px;font-size:0.62rem;color:#6a5030;line-height:1.6;text-align:right;display:none;}
+.mem-info.show{display:block;}
+
+/* CONTROLS */
+.ctrl{background:#faf7f2;border-bottom:1px solid #e0d8cc;padding:0.65rem 1.5rem;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+.cg{display:flex;flex-direction:column;gap:3px;}
+.cl{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.cc{display:flex;align-items:center;gap:5px;}
+input[type=range]{accent-color:#8b5030;}
+.cv{font-size:0.7rem;font-weight:500;color:#1a1410;min-width:40px;}
+.trow{display:flex;gap:2px;}
+.tb{padding:4px 10px;border:1px solid #d4c8b8;background:#ede8de;color:#7a6e62;font-family:'Jost',sans-serif;font-size:0.65rem;cursor:pointer;transition:all 0.15s;border-radius:0;}
+.tb:first-child{border-radius:3px 0 0 3px;}
+.tb:last-child{border-radius:0 3px 3px 0;border-left:none;}
+.tb.on{background:#2a2218;color:#f5e5c0;border-color:#2a2218;}
+.ybtns{display:flex;gap:3px;margin-left:auto;}
+.yb{padding:4px 10px;border:1px solid #d4c8b8;background:#ede8de;color:#7a6e62;font-family:'Jost',sans-serif;font-size:0.65rem;cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.yb.on{background:#2a2218;color:#f5e5c0;border-color:#2a2218;}
+
+/* MEMBERSHIP CONTROLS */
+.memctrl{background:#f5f0e6;border-bottom:1px solid #d8c8a8;padding:0.55rem 1.5rem;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;display:none;}
+.memctrl.show{display:flex;}
+.mc-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#8a6828;font-weight:500;align-self:center;}
+
+/* COST BAND */
+.costband{background:#fff8ec;border-top:1px solid #e8c870;border-bottom:1px solid #e8c870;padding:0.55rem 1.5rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.cb-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:#8a6010;font-weight:500;}
+.util-note{font-size:0.6rem;color:#9a7030;font-style:italic;}
+.util-total{font-size:0.8rem;font-weight:500;color:#7a4010;margin-left:auto;}
+.cv-warn{color:#a06010;}
+.cv-bad{color:#a03020;}
+
+/* KPIS */
+.kpis{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;padding:0.7rem 1.5rem;}
+.kpi{background:#fff;border:1px solid #e0d8cc;border-radius:5px;padding:0.55rem 0.75rem;}
+.kpi.dk{background:#2a2218;border-color:#2a2218;}
+.kpi.good{background:#eaf3de;border-color:#90c060;}
+.kpi.warn{background:#fff8ec;border-color:#e8c870;}
+.kpi.bad{background:#fcebeb;border-color:#e09090;}
+.kpi.mem{background:#f0ede6;border-color:#d4c0a0;}
+.kl{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;margin-bottom:2px;}
+.kpi.dk .kl{color:#9a7850;}.kpi.good .kl{color:#3a6020;}.kpi.warn .kl{color:#9a7020;}.kpi.bad .kl{color:#8a2010;}.kpi.mem .kl{color:#7a5820;}
+.kv{font-size:1rem;font-weight:500;color:#1a1410;}
+.kpi.dk .kv{color:#f5e5c0;}.kpi.good .kv{color:#2a5010;}.kpi.warn .kv{color:#7a5010;}.kpi.bad .kv{color:#7a1010;}.kpi.mem .kv{color:#6a4010;}
+.ks{font-size:0.58rem;color:#9a8e82;margin-top:1px;}
+.kpi.dk .ks{color:#7a6040;}.kpi.good .ks{color:#5a8030;}.kpi.mem .ks{color:#9a7840;}
+
+/* ALERT */
+.alert{margin:0 1.5rem 8px;padding:0.6rem 1rem;border-radius:5px;font-size:0.72rem;line-height:1.6;}
+.alert.good{background:#eaf3de;border:1px solid #90c060;color:#2a5010;}
+.alert.warn{background:#fff8ec;border:1px solid #e8c870;color:#7a5010;}
+.alert.bad{background:#fcebeb;border:1px solid #e09090;color:#7a2010;}
+
+/* GAUGE ROW */
+.gaugerow{display:flex;gap:8px;padding:0 1.5rem 8px;}
+.gbox{background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:0.75rem 1rem;}
+.gtitle{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;margin-bottom:8px;}
+.gtrack{height:10px;background:#f0ebe3;border-radius:5px;overflow:hidden;position:relative;margin-bottom:4px;}
+.gfill{height:100%;border-radius:5px;transition:width 0.3s;}
+.glabels{display:flex;justify-content:space-between;font-size:0.58rem;color:#9a8e82;}
+.sbars{display:flex;flex-direction:column;gap:5px;}
+.sr{display:flex;align-items:center;gap:6px;}
+.sr-label{font-size:0.62rem;color:#5a5048;width:155px;flex-shrink:0;}
+.sr-track{flex:1;height:6px;background:#f0ebe3;border-radius:3px;overflow:hidden;}
+.sr-fill{height:100%;border-radius:3px;}
+.sr-val{font-size:0.62rem;font-weight:500;color:#1a1410;width:52px;text-align:right;}
+
+/* TABLES */
+.tables{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 1.5rem 8px;}
+.sec{background:#fff;border:1px solid #e0d8cc;border-radius:6px;overflow:hidden;}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.85rem;background:#f7f4ef;border-bottom:1px solid #e0d8cc;}
+.sh-t{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#5a5048;font-weight:500;}
+.sh-v{font-size:0.75rem;font-weight:500;color:#1a1410;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;color:#9a8e82;padding:4px 8px;text-align:right;border-bottom:1px solid #e0d8cc;font-weight:400;background:#faf7f2;}
+th:first-child{text-align:left;}
+td{padding:4px 8px;text-align:right;border-bottom:1px solid #f0ebe3;font-size:0.7rem;color:#1a1410;}
+td:first-child{text-align:left;color:#5a5048;}
+tr:last-child td{border-bottom:none;}
+tr.tot td{background:#2a2218;color:#f5e5c0;font-weight:500;}
+tr.tot td:first-child{color:#f5e5c0;}
+tr.util-tr td{background:#fff8ec;color:#7a5010;}tr.util-tr td:first-child{color:#7a5010;}
+tr.mem-tr td{background:#f5f0e6;color:#6a4818;}tr.mem-tr td:first-child{color:#6a4818;}
+tr.deduct-tr td{color:#aaa;font-style:italic;}tr.deduct-tr td:first-child{color:#aaa;}
+tr.ebitda-tr td{font-weight:500;}
+.bc{width:55px;}.ib{height:4px;border-radius:2px;display:block;}
+.pos{color:#2d6e40;}.neg{color:#a03020;}.mut{color:#9a8e82;}
+.cost-input{width:90px;padding:2px 5px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;}
+.cost-name-input{width:140px;padding:2px 5px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#5a5048;}
+.add-row{cursor:pointer;color:#9a8e82;font-size:0.65rem;padding:6px 8px;transition:color 0.15s;}
+.add-row:hover{color:#5a5048;}
+.rm-custom{cursor:pointer;color:#d4c8b8;font-size:0.6rem;margin-left:4px;transition:color 0.15s;}
+.rm-custom:hover{color:#a03020;}
+.tag{display:inline-block;font-size:0.55rem;padding:1px 5px;border-radius:10px;margin-left:4px;}
+.tag-m{background:#e8d8c0;color:#6a4818;}.tag-d{background:#f0ebe3;color:#aaa;}
+
+/* CHART */
+.chartwrap{padding:0 1.5rem 8px;}
+.chartbox{background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:1rem 1.25rem;}
+.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.chart-ttl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.chart-area{display:flex;gap:10px;align-items:flex-end;height:240px;margin-bottom:14px;}
+.ccol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.cval{font-size:0.72rem;font-weight:500;color:#1a1410;text-align:center;}
+.cbw{flex:1;width:100%;display:flex;align-items:flex-end;}
+.cyr{font-size:0.68rem;color:#5a5048;text-align:center;font-weight:500;margin-top:2px;}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px 20px;padding-top:12px;border-top:1px solid #e0d8cc;}
+.li{display:flex;align-items:center;gap:7px;font-size:0.72rem;color:#2a2218;}
+.ld{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
+
+/* PAYBACK */
+.pbwrap{padding:0 1.5rem 8px;}
+.pbbox{background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:1rem 1.25rem;}
+.pb-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:12px;}
+.pb-ttl{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a8e82;}
+.pb-controls{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;}
+.pb-result{font-size:1.1rem;font-weight:500;}
+.pb-track{height:14px;background:#f0ebe3;border-radius:7px;overflow:hidden;position:relative;margin-bottom:10px;}
+.pb-fill{height:100%;border-radius:7px;transition:width 0.3s;}
+.pb-labels{display:flex;justify-content:space-between;font-size:0.58rem;color:#9a8e82;margin-bottom:10px;}
+.pb-table{width:100%;border-collapse:collapse;}
+.pb-table th{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.07em;color:#9a8e82;padding:4px 8px;text-align:right;border-bottom:1px solid #e0d8cc;font-weight:400;background:#faf7f2;}
+.pb-table th:first-child{text-align:left;}
+.pb-table td{padding:4px 8px;text-align:right;border-bottom:1px solid #f0ebe3;font-size:0.7rem;color:#1a1410;}
+.pb-table td:first-child{text-align:left;color:#5a5048;}
+.pb-table tr.pb-payback td{background:#eaf3de;font-weight:500;color:#2a5010;}
+.pb-table tr.pb-neg td{color:#a03020;}
+
+/* BUILDOUT DROPDOWN */
+.bdwrap{padding:0 1.5rem 8px;}
+.bdhead{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e0d8cc;border-radius:6px;padding:0.65rem 1rem;cursor:pointer;user-select:none;transition:background 0.15s;}
+.bdhead:hover{background:#f7f4ef;}
+.bdhead.open{border-radius:6px 6px 0 0;border-bottom-color:#f0ebe3;}
+.bdhead-left{display:flex;align-items:center;gap:10px;}
+.bdhead-title{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:#5a5048;font-weight:500;}
+.bdhead-total{font-size:0.72rem;font-weight:500;color:#1a1410;}
+.bdhead-note{font-size:0.6rem;color:#9a8e82;font-style:italic;}
+.bdhead-right{display:flex;align-items:center;gap:6px;}
+.bdhint{font-size:0.6rem;color:#9a8e82;}
+.bdarrow{font-size:0.72rem;color:#9a8e82;transition:transform 0.2s;display:inline-block;}
+.bdpanel{display:none;background:#fff;border:1px solid #e0d8cc;border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
+.bdpanel.open{display:block;}
+.bdcat{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 1rem 0.4rem;background:#f7f4ef;border-top:1px solid #e0d8cc;cursor:pointer;user-select:none;transition:background 0.15s;}
+.bdcat:hover{background:#f0ebe3;}
+.bdcat-name{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:#5a5048;font-weight:500;}
+.bdcat-right{display:flex;align-items:center;gap:8px;}
+.bdcat-val{font-size:0.72rem;font-weight:500;color:#1a1410;}
+.bdcat-arrow{font-size:0.65rem;color:#9a8e82;transition:transform 0.2s;display:inline-block;}
+.bdcat-arrow.open{transform:rotate(180deg);}
+.bdcat-items{display:none;overflow:hidden;}
+.bdcat-items.open{display:block;}
+.bditem{display:grid;grid-template-columns:auto 1fr 100px;gap:8px;align-items:center;padding:7px 1rem;border-bottom:1px solid #f5f0ea;transition:opacity 0.2s;}
+.bditem.muted{opacity:0.35;}
+.bditem.muted .bditem-name,.bditem.muted .bditem-note,.bditem.muted .bdbar-wrap,.bditem.muted input{pointer-events:none;}
+.bd-x{width:18px;height:18px;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#9a8e82;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;line-height:1;}
+.bd-x:hover{background:#fcebeb;border-color:#e09090;color:#a03020;}
+.bd-x.muted{background:#eaf3de;border-color:#90c060;color:#5a8030;}
+.bd-x.muted:hover{background:#ddecc8;}
+.bditem-name{font-size:0.72rem;color:#1a1410;margin-bottom:2px;}
+.bditem-note{font-size:0.6rem;color:#9a8e82;font-style:italic;}
+.bdbar-wrap{margin-top:5px;height:5px;background:#f0ebe3;border-radius:3px;position:relative;overflow:hidden;}
+.bditem-val{font-size:0.72rem;font-weight:500;color:#1a1410;text-align:right;}
+.bdfoot{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1rem;background:#2a2218;}
+.bdfoot-left-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a7850;font-weight:500;}
+.bdfoot-left-sub{font-size:0.6rem;color:#7a6040;margin-top:3px;}
+.bdfoot-total{font-size:1.05rem;font-weight:500;color:#f5e5c0;}
+.bdfoot-raise{font-size:0.62rem;color:#9a7850;margin-top:2px;}
+
+/* FOOTNOTE */
+.footnote{padding:0.5rem 1.5rem 1.5rem;font-size:0.6rem;color:#9a8e82;line-height:1.7;font-style:italic;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="h-title">Den Mother — New Concept Financial Model</div>
+    <div class="h-sub">4 pods · Heated yoga · 5 treatment rooms · 1,000 sqft outdoor · Utilities own line</div>
+    <div class="bline">
+      <div class="bl"><div class="bl-l">Current rev / mo</div><div class="bl-v">~$180K</div><div class="bl-n">Jan/Feb 2026 avg</div></div>
+      <div class="bl"><div class="bl-l">Labor %</div><div class="bl-v">32.3%</div><div class="bl-n">P&L anchored</div></div>
+      <div class="bl"><div class="bl-l">Target EBITDA</div><div class="bl-v">≥15%</div><div class="bl-n">minimum</div></div>
+      <div class="bl"><div class="bl-l">Year 1</div><div class="bl-v">2027</div><div class="bl-n">mid-year open</div></div>
+    </div>
+  </div>
+  <div class="mem-toggle">
+    <div class="mbtns">
+      <button class="mbtn on" id="btnNoMem" onclick="setMode('none',this)">No membership</button>
+      <button class="mbtn" id="btnMem" onclick="setMode('mem',this)">Membership model</button>
+    </div>
+    <div class="mem-info" id="memInfo">
+      <strong>Membership includes:</strong><br>
+      3 contrast pod sessions/week &nbsp;·&nbsp; 20% off services &nbsp;·&nbsp; Priority booking
+    </div>
+  </div>
+</div>
+
+<!-- REVENUE CONTROLS -->
+<div class="ctrl">
+  <div class="cg">
+    <div class="cl">Pods</div>
+    <div class="cc"><input type="range" min="1" max="4" step="1" id="podCount" value="4" style="width:50px;" oninput="go()"><span class="cv" id="podCountV">4</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Pod rate / hr</div>
+    <div class="cc"><input type="range" min="75" max="200" step="5" id="podRate" value="125" style="width:78px;" oninput="go()"><span class="cv" id="podRateV">$125</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Pod utilization</div>
+    <div class="cc"><input type="range" min="10" max="90" step="5" id="podUtil" value="55" style="width:78px;" oninput="go()"><span class="cv" id="podUtilV">55%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Yoga / person</div>
+    <div class="trow">
+      <button class="tb on" id="y28" onclick="setYoga(28,this)">$28</button>
+      <button class="tb" id="y32" onclick="setYoga(32,this)">$32</button>
+      <button class="tb" id="y38" onclick="setYoga(38,this)">$38</button>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl" id="yogaUtilL">Yoga fill (28 cap)</div>
+    <div class="cc"><input type="range" min="10" max="95" step="5" id="yogaUtil" value="60" style="width:78px;" oninput="go()"><span class="cv" id="yogaUtilV">60%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Yoga class capacity</div>
+    <div class="cc"><input type="range" min="15" max="30" step="1" id="yogaCap" value="28" style="width:78px;" oninput="go()"><span class="cv" id="yogaCapV">28</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Yoga classes / day</div>
+    <div class="cc"><input type="range" min="1" max="8" step="1" id="yogaClasses" value="4" style="width:78px;" oninput="go()"><span class="cv" id="yogaClassesV">4</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Garden massage</div>
+    <div class="cc"><input type="range" min="60" max="130" step="5" id="gardenPrice" value="120" style="width:78px;" oninput="go()"><span class="cv" id="gardenPriceV">$120</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Therapists on site</div>
+    <div class="cc"><input type="range" min="1" max="6" step="1" id="txStaff" value="4" style="width:55px;" oninput="go()"><span class="cv" id="txStaffV">4</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Therapist util</div>
+    <div class="cc"><input type="range" min="10" max="90" step="5" id="txUtil" value="65" style="width:78px;" oninput="go()"><span class="cv" id="txUtilV">65%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">F&B covers / day</div>
+    <div class="cc"><input type="range" min="0" max="120" step="5" id="fnbCovers" value="60" style="width:70px;" oninput="go()"><span class="cv" id="fnbCoversV">60</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">F&B avg ticket</div>
+    <div class="cc"><input type="range" min="8" max="35" step="1" id="fnbTicket" value="18" style="width:65px;" oninput="go()"><span class="cv" id="fnbTicketV">$18</span></div>
+  </div>
+  <div class="cg" id="evtCtrl">
+    <div class="cl">Events / yr</div>
+    <div class="cc"><input type="range" min="0" max="60" step="2" id="evts" value="16" style="width:65px;" oninput="go()"><span class="cv" id="evtsV">16</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">YoY growth</div>
+    <div class="cc"><input type="range" min="0" max="25" step="1" id="yoyGrowth" value="0" style="width:70px;" oninput="go()"><span class="cv" id="yoyGrowthV">0%</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl">Compound growth / yr</div>
+    <div class="cc"><input type="range" min="-10" max="30" step="1" id="compGrowth" value="0" style="width:80px;" oninput="go()"><span class="cv" id="compGrowthV">0%</span></div>
+  </div>
+  <div class="ybtns">
+    <button class="yb on" onclick="setYear(0,this)">2027</button>
+    <button class="yb" onclick="setYear(1,this)">2028</button>
+    <button class="yb" onclick="setYear(2,this)">2029</button>
+    <button class="yb" onclick="setYear(3,this)">2030</button>
+    <button class="yb" onclick="setYear(4,this)">2031</button>
+  </div>
+</div>
+
+<!-- MEMBERSHIP CONTROLS -->
+<div class="memctrl" id="memCtrl">
+  <div class="mc-label">Membership</div>
+  <div class="cg">
+    <div class="cl" style="color:#8a6828;">Monthly fee</div>
+    <div class="cc"><input type="range" min="99" max="299" step="10" id="memFee" value="149" style="width:80px;accent-color:#8b6030;" oninput="go()"><span class="cv" id="memFeeV">$149</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl" style="color:#8a6828;">Members (yr end)</div>
+    <div class="cc"><input type="range" min="20" max="500" step="10" id="memCount" value="150" style="width:80px;accent-color:#8b6030;" oninput="go()"><span class="cv" id="memCountV">150</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl" style="color:#8a6828;">Events / yr</div>
+    <div class="cc"><input type="range" min="0" max="60" step="2" id="memEvts" value="16" style="width:65px;accent-color:#8b6030;" oninput="go()"><span class="cv" id="memEvtsV">16</span></div>
+  </div>
+  <div style="font-size:0.6rem;color:#9a8040;font-style:italic;align-self:center;margin-left:auto;" id="memNote"></div>
+</div>
+
+<!-- COST CONTROLS -->
+<div class="costband">
+  <div class="cb-label">Cost controls</div>
+  <div class="cg">
+    <div class="cl" style="color:#8a6010;">Base rent / mo</div>
+    <div class="cc"><input type="range" min="8000" max="60000" step="500" id="rent" value="14000" style="width:85px;accent-color:#8b5030;" oninput="go()"><span class="cv" id="rentV">$14,000</span></div>
+  </div>
+  <div class="cg">
+    <div class="cl" style="color:#c06010;">Utilities / mo ⚡</div>
+    <div class="cc"><input type="range" min="2000" max="20000" step="500" id="util" value="6000" style="width:85px;accent-color:#c06010;" oninput="go()"><span class="cv" id="utilV">$6,000</span></div>
+  </div>
+  <div class="util-note" id="utilNote"></div>
+  <div class="util-total" id="utilTotal"></div>
+</div>
+
+<div class="kpis" id="kpis"></div>
+<div id="alertBox"></div>
+<div class="gaugerow" id="gaugeRow"></div>
+<div class="tables" id="tables"></div>
+
+<!-- CHART -->
+<div class="chartwrap"><div class="chartbox">
+  <div class="chart-top">
+    <div class="chart-ttl">5-year revenue build</div>
+    <div class="chart-ttl" id="chartSub" style="color:#1a1410;font-weight:500;"></div>
+  </div>
+  <div class="chart-area" id="chartArea"></div>
+  <div class="legend" id="legend"></div>
+</div></div>
+
+<!-- PAYBACK -->
+<div class="pbwrap"><div class="pbbox">
+  <div class="pb-top">
+    <div>
+      <div class="pb-ttl">Investor payback schedule</div>
+      <div style="font-size:0.62rem;color:#9a8e82;margin-top:2px;">EBITDA applied against launch costs</div>
+    </div>
+    <div class="pb-controls">
+      <div class="cg">
+        <div class="cl">Launch costs</div>
+        <div class="cc">
+          <span style="font-size:0.65rem;color:#9a8e82;">$</span>
+          <input type="text" id="pbCapex" value="2,000,000"
+            style="width:110px;padding:3px 6px;font-family:'Jost',sans-serif;font-size:0.7rem;border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;"
+            oninput="fmtCapex(this);go()" onblur="fmtCapex(this)">
+        </div>
+      </div>
+      <div class="cg">
+        <div class="cl">% of EBITDA to payback</div>
+        <div class="cc"><input type="range" min="10" max="100" step="5" id="pbPct" value="100" style="width:80px;" oninput="go()"><span class="cv" id="pbPctV">100%</span></div>
+      </div>
+    </div>
+    <div class="pb-result" id="pbResult"></div>
+  </div>
+  <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+  <div class="pb-labels"><span>$0</span><span id="pbBreakeven"></span></div>
+  <div id="pbTableWrap"></div>
+</div></div>
+
+<!-- BUILDOUT DROPDOWN -->
+<div class="bdwrap">
+  <div class="bdhead" id="bdHead" onclick="toggleBd()">
+    <div class="bdhead-left">
+      <span class="bdhead-title">Estimated buildout costs</span>
+      <span class="bdhead-note" id="bdNote">anchored to actual cost model · click to expand</span>
+    </div>
+    <div class="bdhead-right">
+      <span class="bdhint" id="bdHint">click to expand</span>
+      <span class="bdarrow" id="bdArrow">▼</span>
+    </div>
+  </div>
+  <div class="bdpanel" id="bdPanel"></div>
+</div>
+
+<div class="footnote" id="footnote"></div>
+
+<script>
+const YEARS   = ['2027','2028','2029','2030','2031'];
+let mode = 'none', yogaPrice = 28, yearIdx = 0;
+
+// Per-year slider state
+const SLIDER_IDS = ['podCount','podRate','podUtil','yogaUtil','yogaCap','yogaClasses','gardenPrice','txStaff','txUtil','fnbCovers','fnbTicket','evts','rent','util','memFee','memCount','memEvts'];
+const yearState = [{},{},{},{},{}]; // one object per year
+function saveYear(i) {
+  SLIDER_IDS.forEach(id => yearState[i][id] = v(id));
+  yearState[i].yogaPrice = yogaPrice;
+}
+function loadYear(i) {
+  const s = yearState[i];
+  if (!s.podRate) return; // not yet saved
+  SLIDER_IDS.forEach(id => { document.getElementById(id).value = s[id]; });
+  yogaPrice = s.yogaPrice;
+  // update yoga button highlights
+  ['y28','y32','y38'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const yBtn = document.getElementById('y'+yogaPrice);
+  if (yBtn) yBtn.classList.add('on');
+}
+
+function getGrowthFactor(yr) {
+  const g = v('yoyGrowth') / 100;
+  if (yr === 0 || g === 0) return 1;
+  const c = v('compGrowth') / 100;
+  const linear = 1 + g * yr;
+  const compounded = c !== 0 ? Math.pow(1 + c, yr) : 1;
+  return linear * compounded;
+}
+
+// ── COLORS — maximally distinct ──────────────────────────────────────────
+const C = {
+  pod:    '#e07030',
+  mem:    '#c8a020',
+  yoga:   '#c03a3a',
+  stdTx:  '#2a7a5a',
+  func:   '#6a3a8a',
+  garden: '#5a8a20',
+  events: '#c04878',
+  fnb:    '#408a8a',
+  retail: '#888888'
+};
+const L = {
+  pod:'Pod sessions (walk-in)', mem:'Membership fees',
+  yoga:'Yoga room', stdTx:'Treatment rooms (5)',
+  func:'Functional medicine',
+  garden:'Garden massage', events:'Private events',
+  fnb:'F&B kiosk', retail:'Retail / apothecary'
+};
+
+// ── TOGGLE HELPERS ───────────────────────────────────────────────────────
+function setMode(m, el) {
+  mode = m;
+  document.getElementById('btnNoMem').classList.toggle('on', m==='none');
+  document.getElementById('btnMem').classList.toggle('on', m==='mem');
+  document.getElementById('memInfo').classList.toggle('show', m==='mem');
+  document.getElementById('memCtrl').classList.toggle('show', m==='mem');
+  document.getElementById('evtCtrl').style.display = m==='mem' ? 'none' : '';
+  go();
+}
+function setYoga(p, el) {
+  yogaPrice = p;
+  ['y28','y32','y38'].forEach(id => document.getElementById(id).classList.remove('on'));
+  el.classList.add('on');
+  go();
+}
+function setYear(i, el) {
+  saveYear(yearIdx);
+  yearIdx = i;
+  loadYear(i);
+  document.querySelectorAll('.yb').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  go();
+}
+function v(id) { return +document.getElementById(id).value; }
+function fmtCapex(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  const num = parseInt(raw) || 0;
+  el.value = num.toLocaleString();
+}
+function getCapex() { return parseInt(document.getElementById('pbCapex').value.replace(/[^0-9]/g,'')) || 0; }
+
+// Custom fixed expense line items
+const customCosts = [];
+function addCustomCost() {
+  customCosts.push({ name: 'New expense', amount: 0 });
+  go();
+}
+function removeCustomCost(i) {
+  customCosts.splice(i, 1);
+  go();
+}
+function updateCustomName(i, val) { customCosts[i].name = val; }
+function updateCustomAmount(i, el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  customCosts[i].amount = parseInt(raw) || 0;
+  el.value = customCosts[i].amount.toLocaleString();
+  go();
+}
+
+// Cost overrides — user can edit any default cost
+const costOverrides = {};
+function overrideCost(key, el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  const num = parseInt(raw) || 0;
+  costOverrides[key] = num;
+  el.value = num.toLocaleString();
+  go();
+}
+function getCost(key, defaultVal) {
+  return costOverrides[key] !== undefined ? costOverrides[key] : defaultVal;
+}
+
+// Get values for a given year — current sliders for active year, saved state for others
+function yv(yr, id) {
+  if (yr === yearIdx) return v(id);
+  return yearState[yr][id] !== undefined ? yearState[yr][id] : v(id);
+}
+function yyp(yr) { return yr === yearIdx ? yogaPrice : (yearState[yr].yogaPrice || yogaPrice); }
+function ygp(yr) { return yv(yr,'gardenPrice'); }
+
+// ── REVENUE ──────────────────────────────────────────────────────────────
+function calcRev(yr) {
+  const gf = getGrowthFactor(yr);
+
+  const pu = Math.min(yv(yr,'podUtil')  / 100, 0.95);
+  const yu = Math.min(yv(yr,'yogaUtil') / 100, 0.95);
+  const tu = Math.min(yv(yr,'txUtil')   / 100, 0.95);
+  const pr = yv(yr,'podRate');
+  const yp = yyp(yr);
+  const gp = ygp(yr);
+  const isMem = mode === 'mem';
+
+  const evts = isMem ? yv(yr,'memEvts') : yv(yr,'evts');
+
+  // PODS: N units × $pr/hr × 8 slots/day × 365 days × utilization
+  const pc = yv(yr,'podCount');
+  const totalPodCap = pc * pr * 8 * 365;
+  let podRev = 0, memRev = 0, podDeduct = 0;
+
+  if (!isMem) {
+    podRev = totalPodCap * pu * gf;
+  } else {
+    const mc = yv(yr,'memCount');
+    const mf = yv(yr,'memFee');
+    const sessYr = Math.min(mc * 156, totalPodCap * 0.60);
+    podDeduct = sessYr * pr;
+    const remainUtil = Math.max(0, pu - (sessYr / (pc * 8 * 365)));
+    podRev = totalPodCap * remainUtil * gf;
+    memRev = mc * mf * 12 * gf;
+  }
+
+  // YOGA: capacity × fill × price × classes/day × 300 days
+  const yCap     = yv(yr,'yogaCap');
+  const yClasses = yv(yr,'yogaClasses');
+  const yogaRev  = yCap * yu * yp * yClasses * 300 * gf;
+
+  // TREATMENTS — therapist-driven (in-room + master + garden share the same therapists)
+  // Facials are the exception — separate esthetician, not from the therapist pool
+  const disc = isMem ? (1 - 0.30 * 0.20) : 1;
+  const txS = yv(yr,'txStaff');
+  // Each therapist works 8 hrs/day, 300 days/yr. Allocate time across service types:
+  // ~60% in-room massage (50 min ea), ~10% master/specialty (60 min ea), ~30% garden (75 min ea)
+  const therapistHrsYr = txS * 8 * 300 * tu;
+  const inRoomHrs   = therapistHrsYr * 0.60;
+  const masterHrs   = therapistHrsYr * 0.10;
+  const gardenHrs   = therapistHrsYr * 0.30;
+  const stdTxRev  = (inRoomHrs / (50/60)) * 155 * disc * gf;
+  const masterRev = (masterHrs / 1) * 275 * disc * gf;
+  const funcRev   = (6 / (50/60)) * 300 * 250 * 0.88 * gf;
+  const gardenDays = 280; // seasonal
+  const gardenRev = (gardenHrs * (gardenDays/300)) / (75/60) * gp * disc * gf;
+
+  // EVENTS: avg $3,800 each
+  const eventRev = evts * 3800 * gf;
+
+  // F&B kiosk: covers/day × avg ticket × 250 operating days
+  const fnbRev = yv(yr,'fnbCovers') * yv(yr,'fnbTicket') * 250 * gf;
+
+  // RETAIL: 9% of service revenue (per actual P&L ratio)
+  const svcRev = podRev + yogaRev + stdTxRev + masterRev + funcRev + gardenRev;
+  const retailRev = svcRev * 0.09;
+
+  const total = podRev + memRev + yogaRev + stdTxRev + masterRev +
+                funcRev + gardenRev + eventRev + fnbRev + retailRev;
+
+  const mc  = isMem ? v('memCount') : 0;
+  const mrr = isMem ? mc * v('memFee') : 0;
+
+  return { podRev, podDeduct, memRev, yogaRev, stdTxRev, masterRev,
+           funcRev, gardenRev, eventRev, fnbRev, retailRev,
+           total, svcRev, mc, mrr };
+}
+
+// ── COSTS ────────────────────────────────────────────────────────────────
+function calcCosts(yr, rev) {
+  const rentMo = yv(yr,'rent'), utilMo = yv(yr,'util');
+  const rent   = rentMo * 12;
+  const utils  = utilMo * 12;
+  // Staff: fixed regardless of year (slight annual wage inflation)
+  const wageInfl = [1.0, 1.03, 1.06, 1.09, 1.12][yr];
+  const clinic    = 19000 * 12 * wageInfl;
+  const gm        = 7500  * 12 * wageInfl;
+  const therapist = 20000 * 12 * wageInfl;
+  const bonus     = (rev.stdTxRev + rev.masterRev + rev.gardenRev) * 0.115;
+  const yoga      = 45 * yv(yr,'yogaClasses') * 300; // $45/hr × classes/day × 300 days
+  const staff     = clinic + gm + therapist + bonus + yoga;
+  const cogs      = rev.total * 0.09;
+  const mkt       = rev.total * [0.07,0.06,0.05,0.045,0.04][yr];
+  const ins       = 14400;
+  const soft      = 21600;
+  const misc      = rev.total * 0.025;
+  const total = rent + utils + staff + cogs + mkt + ins + soft + misc;
+  return { rentMo, utilMo, rent, utils, clinic, gm, therapist, bonus, yoga, staff, cogs, mkt, ins, soft, misc, total };
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if (Math.abs(n)>=1000) return '$'+Math.round(n/1000)+'K';
+  return '$'+Math.round(n);
+}
+function fmtF(n) { return (n<0?'(':'')+'$'+Math.abs(Math.round(n)).toLocaleString()+(n<0?')':''); }
+function pct(v,t) { return t===0?0:Math.round(v/t*100); }
+function bw(v,mx) { return Math.min(100,Math.round(Math.abs(v)/mx*100))+'%'; }
+
+// ── MAIN RENDER ──────────────────────────────────────────────────────────
+function go() {
+  // update display values
+  document.getElementById('podCountV').textContent = v('podCount');
+  document.getElementById('podRateV').textContent  = '$'+v('podRate');
+  document.getElementById('podUtilV').textContent  = v('podUtil')+'%';
+  document.getElementById('yogaUtilV').textContent = v('yogaUtil')+'%';
+  document.getElementById('yogaCapV').textContent  = v('yogaCap');
+  document.getElementById('yogaClassesV').textContent = v('yogaClasses');
+  document.getElementById('gardenPriceV').textContent = '$'+v('gardenPrice');
+  document.getElementById('yogaUtilL').textContent = 'Yoga fill ('+v('yogaCap')+' cap)';
+  document.getElementById('txStaffV').textContent  = v('txStaff');
+  document.getElementById('txUtilV').textContent   = v('txUtil')+'%';
+  document.getElementById('fnbCoversV').textContent = v('fnbCovers');
+  document.getElementById('fnbTicketV').textContent = '$'+v('fnbTicket');
+  document.getElementById('evtsV').textContent     = v('evts');
+  document.getElementById('memFeeV').textContent   = '$'+v('memFee');
+  document.getElementById('memCountV').textContent = v('memCount');
+  document.getElementById('memEvtsV').textContent  = v('memEvts');
+  document.getElementById('yoyGrowthV').textContent = v('yoyGrowth')+'%';
+  const cg = v('compGrowth');
+  document.getElementById('compGrowthV').textContent = (cg > 0 ? '+' : '') + cg + '%';
+
+  const rentMo = v('rent'), utilMo = v('util');
+  document.getElementById('rentV').textContent = '$'+rentMo.toLocaleString();
+  const uv = document.getElementById('utilV');
+  uv.textContent = '$'+utilMo.toLocaleString();
+  uv.className = 'cv' + (utilMo>=12000?' cv-bad':utilMo>=8000?' cv-warn':'');
+  document.getElementById('utilTotal').textContent = 'Combined: $'+(rentMo+utilMo).toLocaleString()+'/mo';
+  document.getElementById('utilNote').textContent =
+    utilMo < 5000 ? 'Below $5K/mo — verify with electrical engineer for sauna/chiller load.' :
+    utilMo < 8000 ? 'Typical range for this config. Get actual quotes before finalizing.' :
+    utilMo < 12000 ? 'Above $8K/mo — expected for 4 pods + heated yoga. Confirm with MEP engineer.' :
+    'Above $12K/mo — get efficiency audit. May indicate undersized HVAC or equipment spec issue.';
+
+  const yr    = yearIdx;
+  const isMem = mode === 'mem';
+  const rev   = calcRev(yr);
+  const costs = calcCosts(yr, rev);
+  const ebitda  = rev.total - costs.total;
+  const margin  = pct(ebitda, rev.total);
+  const rentPct = pct(costs.rent, rev.total);
+  const utilPct = pct(costs.utils, rev.total);
+  const labPct  = pct(costs.staff, rev.total);
+  const combRU  = costs.rent + costs.utils;
+
+  if (isMem) {
+    document.getElementById('memNote').textContent =
+      rev.mc+' members × $'+v('memFee')+'/mo = '+fmt(rev.mrr)+'/mo MRR · pod sessions used by members deducted from walk-in revenue';
+  }
+
+  // ALERT
+  let ac, am;
+  if (margin>=20) { ac='good'; am=`EBITDA ${margin}% — ${margin-15}pp above 15% target. ${isMem?'Membership contributing '+fmt(rev.memRev)+' ('+pct(rev.memRev,rev.total)+'% of rev).':''}`; }
+  else if (margin>=15) { ac='good'; am=`EBITDA ${margin}% — at target. Rent $${costs.rentMo.toLocaleString()} + utilities $${costs.utilMo.toLocaleString()} = $${(costs.rentMo+costs.utilMo).toLocaleString()}/mo combined (${pct(combRU,rev.total)}% of rev).`; }
+  else if (margin>=8) { ac='warn'; am=`EBITDA ${margin}% — below 15% by ${15-margin}pp. Gap = ${fmt(rev.total*0.15-ebitda)}. ${isMem?'Try raising membership fee or adding members.':'Try raising pod rate or adding events.'}`; }
+  else { ac='bad'; am=`EBITDA ${margin}% — significantly below target. Occupancy (${fmt(combRU/12)}/mo) = ${pct(combRU,rev.total)}% of revenue.`; }
+  document.getElementById('alertBox').innerHTML = `<div class="alert ${ac}">${am}</div>`;
+
+  // KPIS
+  const mk = margin>=15?'good':margin>=8?'warn':'bad';
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi dk"><div class="kl">Revenue ${YEARS[yr]}</div><div class="kv">${fmt(rev.total)}</div><div class="ks">${isMem?'membership model':'no membership'}</div></div>
+    <div class="kpi dk"><div class="kl">EBITDA</div><div class="kv">${fmt(ebitda)}</div><div class="ks">${margin}% margin</div></div>
+    <div class="kpi ${mk}"><div class="kl">vs 15% target</div><div class="kv">${margin>=15?'+':''}${margin-15}pp</div><div class="ks">${margin>=15?'on target':'below target'}</div></div>
+    <div class="kpi"><div class="kl">Rent % rev</div><div class="kv">${rentPct}%</div><div class="ks">$${costs.rentMo.toLocaleString()}/mo</div></div>
+    <div class="kpi ${utilPct>=12?'warn':''}"><div class="kl">Utilities % rev</div><div class="kv">${utilPct}%</div><div class="ks">$${costs.utilMo.toLocaleString()}/mo</div></div>
+    <div class="kpi"><div class="kl">Labor % rev</div><div class="kv">${labPct}%</div><div class="ks">target &lt;35%</div></div>
+    ${isMem
+      ? `<div class="kpi mem"><div class="kl">Membership MRR</div><div class="kv">${fmt(rev.mrr)}</div><div class="ks">${rev.mc} members · $${v('memFee')}/mo</div></div>`
+      : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${v('podCount')} pods · ${v('podUtil')}% util · $${v('podRate')}/hr</div></div>`}`;
+
+  // GAUGE ROW
+  const streamOrder = ['podRev','memRev','yogaRev','stdTxRev','funcRev','gardenRev','eventRev','fnbRev','retailRev'];
+  const streamMap   = {podRev:rev.podRev,memRev:rev.memRev,yogaRev:rev.yogaRev,stdTxRev:rev.stdTxRev+rev.masterRev,funcRev:rev.funcRev,gardenRev:rev.gardenRev,eventRev:rev.eventRev,fnbRev:rev.fnbRev,retailRev:rev.retailRev};
+  const colorMap    = {podRev:C.pod,memRev:C.mem,yogaRev:C.yoga,stdTxRev:C.stdTx,funcRev:C.func,gardenRev:C.garden,eventRev:C.events,fnbRev:C.fnb,retailRev:C.retail};
+  const labelMap    = {podRev:L.pod,memRev:L.mem,yogaRev:L.yoga,stdTxRev:L.stdTx,funcRev:L.func,gardenRev:L.garden,eventRev:L.events,fnbRev:L.fnb,retailRev:L.retail};
+  const activeStreams = streamOrder.filter(s => streamMap[s] > 0);
+
+  const sbars = activeStreams.map(s=>`
+    <div class="sr">
+      <div class="sr-label">${labelMap[s]}</div>
+      <div class="sr-track"><div class="sr-fill" style="width:${bw(streamMap[s],rev.total)};background:${colorMap[s]};height:6px;border-radius:3px;"></div></div>
+      <div class="sr-val">${fmt(streamMap[s])}</div>
+    </div>`).join('');
+
+  document.getElementById('gaugeRow').innerHTML = `
+    <div class="gbox" style="flex:2;">
+      <div class="gtitle">Revenue by stream — ${YEARS[yr]}</div>
+      <div class="sbars">${sbars}</div>
+    </div>
+    <div class="gbox" style="flex:1;">
+      <div class="gtitle">EBITDA margin</div>
+      <div style="margin-bottom:6px;">
+        <div class="gtrack">
+          <div class="gfill" style="width:${Math.max(0,Math.min(margin,50))*2}%;background:${margin>=20?'#5a9a40':margin>=15?'#90c060':margin>=8?'#e8c060':'#e06050'};"></div>
+          <div style="position:absolute;left:30%;top:0;bottom:0;width:2px;background:#2a2218;opacity:0.5;"></div>
+        </div>
+        <div class="glabels"><span>0%</span><span style="color:#2a2218;font-weight:500;">15%</span><span>50%</span></div>
+      </div>
+      <div style="font-size:2rem;font-weight:500;color:${margin>=15?'#2d6e40':margin>=8?'#8a6010':'#a03020'};margin:4px 0;">${margin}%</div>
+      <div style="font-size:0.62rem;color:#9a8e82;margin-bottom:8px;">${YEARS[yr]}</div>
+      <div style="border-top:1px solid #e0d8cc;padding-top:8px;font-size:0.62rem;color:#5a5048;">
+        <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Base rent</span><span style="font-weight:500;">$${costs.rentMo.toLocaleString()}/mo · ${rentPct}% rev</span></div>
+        <div style="display:flex;justify-content:space-between;padding:3px 5px;background:#fff8ec;border-radius:3px;margin:2px 0;color:#7a5010;"><span>Utilities ⚡</span><span style="font-weight:500;">$${costs.utilMo.toLocaleString()}/mo · ${utilPct}% rev</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0;font-weight:500;border-top:1px solid #e0d8cc;margin-top:2px;"><span>Combined</span><span>${fmt(combRU/12)}/mo · ${pct(combRU,rev.total)}% rev</span></div>
+        ${isMem?`<div style="display:flex;justify-content:space-between;padding:2px 0;color:#6a4010;border-top:1px solid #e0d8cc;margin-top:4px;"><span>Membership MRR</span><span style="font-weight:500;">${fmt(rev.mrr)}</span></div>`:''}
+      </div>
+    </div>`;
+
+  // REVENUE TABLE
+  const revRows = activeStreams.map(s => {
+    const isM = s==='memRev', isDed = false;
+    return `<tr${isM?' class="mem-tr"':''}>
+      <td>${labelMap[s]}${isM?'<span class="tag tag-m">membership</span>':''}</td>
+      <td class="bc"><div class="ib" style="width:${bw(streamMap[s],rev.total)};background:${colorMap[s]};"></div></td>
+      <td class="mut">${pct(streamMap[s],rev.total)}%</td>
+      <td style="${isM?'color:#6a4010;':'color:#2d6e40;'}">${fmtF(streamMap[s])}</td></tr>`;
+  }).join('') +
+  (isMem && rev.podDeduct>0 ? `<tr class="deduct-tr"><td>↳ Pod sessions used by members <span class="tag tag-d">deducted</span></td><td class="bc"></td><td class="mut">—</td><td style="color:#aaa;font-style:italic;">(${fmtF(rev.podDeduct)} rack value)</td></tr>` : '') +
+  `<tr class="tot"><td>Total revenue</td><td></td><td>100%</td><td>${fmtF(rev.total)}</td></tr>`;
+
+  // COST TABLE — editable
+  const costLines = [
+    { name:'Base rent', key:'rent', def:costs.rent, color:'#c47840' },
+    { name:'Utilities', key:'utils', def:costs.utils, color:'#e89020', cls:'util-tr' },
+    { name:'Clinic staff + GM', key:'staffGm', def:costs.clinic+costs.gm, color:'#8b6030' },
+    { name:'Therapist base + bonus', key:'therapist', def:costs.therapist+costs.bonus, color:'#5a7a6a' },
+    { name:'Yoga instructors', key:'yoga', def:costs.yoga, color:'#8b3a3a' },
+    { name:'COGS', key:'cogs', def:costs.cogs, color:'#4a6a9a' },
+    { name:'Marketing', key:'mkt', def:costs.mkt, color:'#7a5a8a' },
+    { name:'Insurance + software + misc', key:'other', def:costs.ins+costs.soft+costs.misc, color:'#888' },
+  ];
+  let editTotal = 0;
+  const costRows = costLines.map(c => {
+    const val = getCost(c.key, Math.round(c.def));
+    editTotal += val;
+    return `<tr${c.cls?' class="'+c.cls+'"':''}>
+      <td>${c.name}</td>
+      <td class="bc"><div class="ib" style="width:${bw(val,costs.total)};background:${c.color};"></div></td>
+      <td class="mut">${pct(val,rev.total)}%</td>
+      <td><input class="cost-input" value="${val.toLocaleString()}" onchange="overrideCost('${c.key}',this)" onblur="overrideCost('${c.key}',this)"></td></tr>`;
+  }).join('') +
+  customCosts.map((c, i) => {
+    editTotal += c.amount;
+    return `<tr>
+      <td><input class="cost-name-input" value="${c.name}" onchange="updateCustomName(${i},this.value)"><span class="rm-custom" onclick="removeCustomCost(${i})">✕</span></td>
+      <td class="bc"><div class="ib" style="width:${bw(c.amount,costs.total)};background:#aaa;"></div></td>
+      <td class="mut">${pct(c.amount,rev.total)}%</td>
+      <td><input class="cost-input" value="${c.amount.toLocaleString()}" onchange="updateCustomAmount(${i},this)" onblur="updateCustomAmount(${i},this)"></td></tr>`;
+  }).join('') +
+  `<tr class="add-row"><td colspan="4" onclick="addCustomCost()">+ Add line item</td></tr>` +
+  `<tr class="tot"><td>Total costs</td><td></td><td>${pct(editTotal,rev.total)}%</td><td>${fmtF(-editTotal)}</td></tr>
+   <tr class="ebitda-tr" style="background:${(rev.total-editTotal)>=0?'#eaf3de':'#fcebeb'};">
+      <td>EBITDA</td><td></td>
+      <td class="${(rev.total-editTotal)>=0?'pos':'neg'}">${pct(rev.total-editTotal,rev.total)}%</td>
+      <td class="${(rev.total-editTotal)>=0?'pos':'neg'}">${fmtF(rev.total-editTotal)}</td></tr>`;
+
+  document.getElementById('tables').innerHTML = `
+    <div class="sec">
+      <div class="sh"><div class="sh-t">Revenue — ${YEARS[yr]}</div><div class="sh-v">${fmtF(rev.total)}</div></div>
+      <table><thead><tr><th>Stream</th><th></th><th>Mix</th><th>Amount</th></tr></thead><tbody>${revRows}</tbody></table>
+    </div>
+    <div class="sec">
+      <div class="sh"><div class="sh-t">Fixed expenses — ${YEARS[yr]}</div><div class="sh-v">${fmtF(costs.total)}</div></div>
+      <table><thead><tr><th>Line item</th><th></th><th>% rev</th><th>Amount</th></tr></thead><tbody>${costRows}</tbody></table>
+    </div>`;
+
+  // 5-YEAR CHART
+  const allRevs = [0,1,2,3,4].map(y => calcRev(y));
+  const maxT = Math.max(...allRevs.map(r => r.total));
+  const allStreamsMap = y => ({podRev:allRevs[y].podRev,memRev:allRevs[y].memRev,yogaRev:allRevs[y].yogaRev,stdTxRev:allRevs[y].stdTxRev,masterRev:allRevs[y].masterRev,funcRev:allRevs[y].funcRev,gardenRev:allRevs[y].gardenRev,eventRev:allRevs[y].eventRev,fnbRev:allRevs[y].fnbRev,retailRev:allRevs[y].retailRev});
+
+  let bars = '';
+  for (let i=0; i<5; i++) {
+    const sm = allStreamsMap(i);
+    const act = streamOrder.filter(s => sm[s] > 0);
+    const stack = act.map(s => {
+      const h = Math.round(sm[s]/maxT*210);
+      return `<div style="height:${h}px;background:${colorMap[s]};width:100%;flex-shrink:0;"></div>`;
+    }).join('');
+    bars += `<div class="ccol">
+      <div class="cval">${fmt(allRevs[i].total)}</div>
+      <div class="cbw"><div style="display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:210px;width:100%;border-radius:4px 4px 0 0;overflow:hidden;">${stack}</div></div>
+      <div class="cyr" style="${i===yr?'color:#2a2218;font-weight:500;':'color:#9a8e82;'}">${YEARS[i]}</div>
+    </div>`;
+  }
+  document.getElementById('chartArea').innerHTML = bars;
+  document.getElementById('chartSub').textContent = fmt(allRevs[4].total)+' by 2031';
+  document.getElementById('legend').innerHTML = activeStreams.map(s =>
+    `<div class="li"><div class="ld" style="background:${colorMap[s]};"></div>${labelMap[s]}</div>`).join('');
+
+  // PAYBACK — compute EBITDA per year inline
+  const capex = getCapex() || 2000000;
+  const payPct = v('pbPct') / 100;
+  document.getElementById('pbPctV').textContent = v('pbPct') + '%';
+
+  const ebitdaByYear = [];
+  for (let i = 0; i < 5; i++) {
+    const r = allRevs[i];
+    const rentMo = yv(i,'rent'), utilMo = yv(i,'util');
+    const wageInfl = [1.0, 1.03, 1.06, 1.09, 1.12][i];
+    const staffCost = 19000*12*wageInfl + 7500*12*wageInfl + 20000*12*wageInfl
+                    + (r.stdTxRev + r.masterRev + r.gardenRev)*0.115
+                    + 45*4*300;
+    const totalCost = rentMo*12 + utilMo*12 + staffCost
+                    + r.total*0.09
+                    + r.total*[0.07,0.06,0.05,0.045,0.04][i]
+                    + 14400 + 21600
+                    + r.total*0.025;
+    ebitdaByYear.push(r.total - totalCost);
+  }
+
+  let cumPaid = 0, paybackYr = null, paybackRows = '';
+  for (let i = 0; i < 5; i++) {
+    const ebi = ebitdaByYear[i];
+    const applied = ebi * payPct;
+    cumPaid += applied;
+    const remaining = capex - cumPaid;
+    const paid = paybackYr !== null;
+    const hitThisYear = !paid && cumPaid >= capex;
+    if (hitThisYear) paybackYr = i;
+    paybackRows += `<tr class="${hitThisYear?'pb-payback':ebi<0?'pb-neg':''}">
+      <td>${YEARS[i]}</td>
+      <td>${fmtF(ebi)}</td>
+      <td>${fmtF(applied)}</td>
+      <td>${fmtF(cumPaid)}</td>
+      <td>${remaining > 0 ? fmtF(remaining) : paid || hitThisYear ? 'Paid back' : fmtF(remaining)}</td>
+    </tr>`;
+  }
+
+  let paybackText, paybackColor;
+  if (paybackYr !== null) {
+    let cum2 = 0;
+    for (let i = 0; i < paybackYr; i++) cum2 += ebitdaByYear[i] * payPct;
+    const appliedPayYr = ebitdaByYear[paybackYr] * payPct;
+    const remainAtStart = capex - cum2;
+    const monthsIn = Math.ceil(remainAtStart / appliedPayYr * 12);
+    const totalMonths = paybackYr * 12 + monthsIn;
+    const yrs = Math.floor(totalMonths / 12);
+    const mos = totalMonths % 12;
+    paybackText = yrs > 0 ? yrs + 'yr ' + mos + 'mo' : mos + ' months';
+    paybackColor = paybackYr <= 2 ? '#2d6e40' : '#7a5010';
+  } else {
+    paybackText = '5+ years';
+    paybackColor = '#a03020';
+  }
+
+  const pbFillPct = Math.min(100, Math.max(0, cumPaid / capex * 100));
+  document.getElementById('pbResult').style.color = paybackColor;
+  document.getElementById('pbResult').textContent = paybackText;
+  document.getElementById('pbFill').style.width = pbFillPct + '%';
+  document.getElementById('pbFill').style.background = paybackYr !== null ? (paybackYr <= 2 ? '#5a9a40' : '#e8c060') : '#e06050';
+  document.getElementById('pbBreakeven').textContent = fmt(capex) + ' (breakeven)';
+  document.getElementById('pbTableWrap').innerHTML = `
+    <table class="pb-table">
+      <thead><tr><th>Year</th><th>EBITDA</th><th>Applied (${v('pbPct')}%)</th><th>Cumulative</th><th>Remaining</th></tr></thead>
+      <tbody>${paybackRows}</tbody>
+    </table>`;
+
+  document.getElementById('footnote').textContent =
+    (isMem ? 'Membership $'+v('memFee')+'/mo: 3 pod sessions/week (156/yr). Pod sessions used by members deducted from walk-in pod revenue — no double counting. 20% service discount on ~30% of treatment bookings. '
+           : 'No membership — all pod revenue at rack rate. ') +
+    'Revenue anchored to Jan–Feb 2026 P&L. Rates: bodywork $155, master suite $275, functional medicine $250, garden massage $'+v('gardenPrice')+'. ' +
+    'YoY growth: '+v('yoyGrowth')+'%'+(v('compGrowth')!==0?' + '+v('compGrowth')+'% compound':'')+'. EBITDA excludes capex, depreciation, debt service.';
+}
+
+// ── BUILDOUT DROPDOWN ────────────────────────────────────────────────────
+// Anchored to actual cost model provided (comparable sauna/wellness concept)
+const BD = [
+  { cat:'Business set-up', items:[
+    { n:'Website design + development',                      lo:10000,  hi:18000,  note:'Actual: $10K — budget more for Den Mother brand level' },
+    { n:'Marketing + PR (pre-opening)',                      lo:20000,  hi:35000,  note:'Actual: $12.5K — founding member campaign needs more' },
+    { n:'Pre-opening training + labor',                      lo:30000,  hi:50000,  note:'Actual: $30K' },
+    { n:'Staff wardrobe + uniforms',                         lo:10000,  hi:15000,  note:'Actual: $12.2K' },
+    { n:'Starting apothecary + wellness mart inventory',     lo:25000,  hi:40000,  note:'Actual: $35K — core to Den Mother brand identity' },
+    { n:'Clinic technology + POS (Clover)',                  lo:6000,   hi:10000,  note:'Actual: $9.6K combined' },
+    { n:'Payroll setup + legal + accounting',                lo:10000,  hi:15000,  note:'Actual: $12.5K' },
+    { n:'Business licenses, plan check, insurance deposits', lo:7000,   hi:12000,  note:'Actual: $7.5K — LA adds permit complexity' },
+    { n:'Rent security deposit (2 months)',                  lo:28000,  hi:45000,  note:'Actual: $40.5K — based on $14–21K/mo rent range' },
+  ]},
+  { cat:'Construction + shell', items:[
+    { n:'Hard construction (base build, walls, flooring)',   lo:550000, hi:750000, note:'Actual: $1M on larger footprint — scaled to your ~2,500–3,500 sqft' },
+    { n:'Architectural + design fees',                       lo:120000, hi:175000, note:'Actual: $150K arch + $150K technical — confirmed' },
+    { n:'Plumbing — wet areas (pods, showers, locker rooms)',lo:55000,  hi:90000,  note:'4 pods + cold plunge + showers' },
+    { n:'Electrical + panel upgrade',                        lo:45000,  hi:75000,  note:'Sauna + heated yoga require dedicated high-draw circuits' },
+    { n:'HVAC + ventilation (humidity control)',             lo:65000,  hi:95000,  note:'Never underspec — in actual model this is part of base construction' },
+    { n:'Outdoor covered space (patio, garden, drainage)',   lo:35000,  hi:60000,  note:'1,000 sqft covered outdoor' },
+  ]},
+  { cat:'Specialized equipment', items:[
+    { n:'30-person group sauna (~400 sqft)',                  lo:150000, hi:200000, note:'Actual: $175K — use as direct anchor' },
+    { n:'4 × contrast pod builds (cedar sauna + cold plunge)',lo:80000,  hi:130000, note:'Actual cold plunge rooms: $300K for 4 (larger) — pods are smaller format' },
+    { n:'Cold plunge chillers + filtration (4 units)',        lo:28000,  hi:50000,  note:'$7–12K per unit commercial grade' },
+    { n:'Heated yoga / breathwork room (radiant floor)',      lo:120000, hi:180000, note:'Actual infrared breathwork room: $180K — your heated yoga is comparable' },
+    { n:'Shower room build-out',                             lo:80000,  hi:130000, note:'Actual: $125K — do not underestimate plumbing cost here' },
+    { n:'Changing rooms + lockers (small footprint)',         lo:30000,  hi:55000,  note:'Actual coed locker rooms: $50K on 1,000 sqft — yours is smaller' },
+  ]},
+  { cat:'Interior + FF&E', items:[
+    { n:'Furniture + fixtures throughout',                   lo:180000, hi:280000, note:'Actual: $400K on larger concept — biggest correction vs. prior estimate' },
+    { n:'5 treatment rooms + master suite equipment',        lo:16000,  hi:35000,  note:'Actual: $16K equipment (room build in base construction)' },
+    { n:'Check-in + retail store fit-out',                   lo:20000,  hi:35000,  note:'Actual: $20K' },
+    { n:'Landscaping + outdoor spa hardware',                lo:20000,  hi:35000,  note:'Actual: $27.2K combined' },
+    { n:'Signage + murals',                                  lo:8000,   hi:18000,  note:'Actual: $1K — Den Mother brand needs more' },
+    { n:'Apothecary display + retail millwork',              lo:12000,  hi:22000,  note:'Separate from inventory — buildout cost only' },
+  ]},
+  { cat:'Working capital + contingency', items:[
+    { n:'Working capital reserve (3 months ops)',            lo:150000, hi:250000, note:'Actual: $200K — use as floor' },
+    { n:'Contingency (10–15% of hard costs)',                lo:80000,  hi:140000, note:'Not in actual model — standard practice to add' },
+  ]},
+];
+
+let bdOpen = false;
+
+function toggleBd() {
+  bdOpen = !bdOpen;
+  document.getElementById('bdHead').classList.toggle('open', bdOpen);
+  document.getElementById('bdPanel').classList.toggle('open', bdOpen);
+  document.getElementById('bdArrow').style.transform = bdOpen ? 'rotate(180deg)' : '';
+  document.getElementById('bdHint').textContent = bdOpen ? 'click to collapse' : 'click to expand';
+  if (bdOpen) buildBdPanel();
+}
+
+function buildBdPanel() {
+  const maxHi = Math.max(...BD.flatMap(c => c.items.map(i => i.hi)));
+  let html = '';
+
+  BD.forEach((cat, ci) => {
+    const catLo = cat.items.reduce((s,i)=>s+i.lo,0);
+    const catHi = cat.items.reduce((s,i)=>s+i.hi,0);
+    html += `<div class="bdcat" onclick="toggleCat(${ci})">
+      <span class="bdcat-name">${cat.cat}</span>
+      <div class="bdcat-right">
+        <span class="bdcat-val" id="catval-${ci}">$${Math.round(catLo/1000)}K – $${Math.round(catHi/1000)}K</span>
+        <span class="bdcat-arrow" id="catarrow-${ci}">▼</span>
+      </div>
+    </div>`;
+    html += `<div class="bdcat-items" id="catitems-${ci}">`;
+
+    cat.items.forEach((item, ii) => {
+      const wHi = Math.round(item.hi/maxHi*100);
+      const wLo = Math.round(item.lo/maxHi*100);
+      html += `<div class="bditem" id="bditem-${ci}-${ii}">
+        <button class="bd-x" id="bdx-${ci}-${ii}" onclick="toggleMute(${ci},${ii},event)" title="Exclude this item">×</button>
+        <div style="flex:1;">
+          <div class="bditem-name">${item.n}</div>
+          ${item.note ? `<div class="bditem-note">${item.note}</div>` : ''}
+          <div class="bdbar-wrap" id="bar-${ci}-${ii}">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:${wHi}%;background:#e0d0b8;border-radius:3px;"></div>
+            <div style="position:absolute;left:0;top:0;bottom:0;width:${wLo}%;background:#c47840;border-radius:3px;"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-left:12px;">
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:0.6rem;color:#9a8e82;width:22px;text-align:right;">low</span>
+            <span style="font-size:0.65rem;color:#9a8e82;">$</span>
+            <input type="number"
+              id="lo-${ci}-${ii}"
+              value="${item.lo}"
+              min="0" step="1000"
+              style="width:80px;padding:3px 6px;font-family:'Jost',sans-serif;font-size:0.7rem;
+                border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;"
+              oninput="bdUpdate(${ci},${ii})">
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:0.6rem;color:#9a8e82;width:22px;text-align:right;">high</span>
+            <span style="font-size:0.65rem;color:#9a8e82;">$</span>
+            <input type="number"
+              id="hi-${ci}-${ii}"
+              value="${item.hi}"
+              min="0" step="1000"
+              style="width:80px;padding:3px 6px;font-family:'Jost',sans-serif;font-size:0.7rem;
+                border:1px solid #d4c8b8;border-radius:3px;background:#faf7f2;color:#1a1410;text-align:right;"
+              oninput="bdUpdate(${ci},${ii})">
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`; // close bdcat-items
+  });
+
+  html += `<div class="bdfoot" id="bdfoot">
+    <div>
+      <div class="bdfoot-left-title">Total estimated capex</div>
+      <div class="bdfoot-left-sub">+ 15% contingency + lease deposit + 3 months ops float for raise target</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="bdfoot-total" id="bdfoot-total">—</div>
+      <div class="bdfoot-raise" id="bdfoot-raise">—</div>
+    </div>
+  </div>`;
+
+  document.getElementById('bdPanel').innerHTML = html;
+  bdRefreshTotals();
+}
+
+const bdMuted = {}; // track muted items: key = 'ci-ii'
+
+function toggleMute(ci, ii, ev) {
+  ev.stopPropagation();
+  const key = ci+'-'+ii;
+  bdMuted[key] = !bdMuted[key];
+  const item = document.getElementById('bditem-'+key);
+  const btn = document.getElementById('bdx-'+key);
+  item.classList.toggle('muted', bdMuted[key]);
+  btn.classList.toggle('muted', bdMuted[key]);
+  btn.textContent = bdMuted[key] ? '↩' : '×';
+  btn.title = bdMuted[key] ? 'Restore this item' : 'Exclude this item';
+  bdRefreshTotals();
+}
+
+function toggleCat(ci) {
+  const items = document.getElementById('catitems-'+ci);
+  const arrow = document.getElementById('catarrow-'+ci);
+  items.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function bdUpdate(ci, ii) {
+  const loEl = document.getElementById('lo-'+ci+'-'+ii);
+  const hiEl = document.getElementById('hi-'+ci+'-'+ii);
+  const lo = Math.max(0, +loEl.value || 0);
+  const hi = Math.max(lo, +hiEl.value || 0);
+  BD[ci].items[ii].lo = lo;
+  BD[ci].items[ii].hi = hi;
+
+  // Refresh bar
+  const allHi = Math.max(...BD.flatMap(c => c.items.map(i => i.hi)));
+  const barEl = document.getElementById('bar-'+ci+'-'+ii);
+  if (barEl) {
+    const wHi = Math.round(hi/allHi*100);
+    const wLo = Math.round(lo/allHi*100);
+    barEl.innerHTML = `
+      <div style="position:absolute;left:0;top:0;bottom:0;width:${wHi}%;background:#e0d0b8;border-radius:3px;"></div>
+      <div style="position:absolute;left:0;top:0;bottom:0;width:${wLo}%;background:#c47840;border-radius:3px;"></div>`;
+  }
+
+  bdRefreshTotals();
+}
+
+function bdRefreshTotals() {
+  let totalLo = 0, totalHi = 0;
+  BD.forEach((cat, ci) => {
+    let catLo = 0, catHi = 0;
+    cat.items.forEach((item, ii) => {
+      if (!bdMuted[ci+'-'+ii]) { catLo += item.lo; catHi += item.hi; }
+    });
+    totalLo += catLo; totalHi += catHi;
+    const el = document.getElementById('catval-'+ci);
+    if (el) el.textContent = '$'+Math.round(catLo/1000)+'K – $'+Math.round(catHi/1000)+'K';
+  });
+
+  const ftEl = document.getElementById('bdfoot-total');
+  const frEl = document.getElementById('bdfoot-raise');
+
+  if (ftEl) ftEl.textContent = '$'+Math.round(totalLo/1000)+'K – $'+Math.round(totalHi/1000)+'K';
+  if (frEl) frEl.textContent = 'raise target: $'+Math.round((totalHi*1.15+250000)/1000)+'K – $'+Math.round((totalHi*1.15+400000)/1000)+'K';
+}
+
+go();
+</script>
+</body>
+</html>
