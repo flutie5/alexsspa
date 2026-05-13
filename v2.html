@@ -10,6 +10,31 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Jost',sans-serif;background:#f7f4ef;color:#1a1410;font-size:13px;}
 
+/* SCENARIOS BAR */
+.scnbar{display:flex;align-items:center;gap:8px;padding:6px 1.5rem;background:#2a2218;color:#f5e5c0;border-bottom:1px solid #1a1410;font-size:0.68rem;}
+.scnbar .scn-label{text-transform:uppercase;letter-spacing:0.1em;font-size:0.58rem;color:#c8b890;margin-right:2px;}
+.scnbar select{font-family:'Jost',sans-serif;font-size:0.72rem;padding:3px 8px;border-radius:3px;border:1px solid #5a4a38;background:#3a2e22;color:#f5e5c0;cursor:pointer;min-width:160px;}
+.scnbar select:focus{outline:none;border-color:#c8a020;}
+.scnbar button{font-family:'Jost',sans-serif;font-size:0.66rem;padding:3px 10px;border:1px solid #5a4a38;border-radius:3px;background:#3a2e22;color:#f5e5c0;cursor:pointer;transition:all 0.15s;}
+.scnbar button:hover{background:#4a3a2a;border-color:#8a6828;}
+.scnbar button:disabled{opacity:0.4;cursor:not-allowed;}
+.scnbar .scn-status{margin-left:auto;font-size:0.6rem;color:#9a8848;font-style:italic;}
+.scnbar .scn-status.saving{color:#e0c060;}
+.scnbar .scn-status.saved{color:#7aa050;}
+.scnbar .scn-status.modified{color:#e0a040;}
+.scnbar .scn-status.err{color:#e07060;}
+
+/* INLINE MODAL for scenario name input */
+.scn-modal{position:fixed;inset:0;background:rgba(20,16,12,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.scn-modal .scn-dlg{background:#faf7f2;border:1px solid #2a2218;border-radius:6px;padding:18px 20px;min-width:320px;box-shadow:0 10px 40px rgba(0,0,0,0.35);}
+.scn-modal .scn-dlg-ttl{font-family:'Jost',sans-serif;font-size:0.78rem;color:#1a1410;margin-bottom:10px;font-weight:500;}
+.scn-modal .scn-dlg-in{width:100%;font-family:'Jost',sans-serif;font-size:0.82rem;padding:6px 8px;border:1px solid #c8b890;border-radius:3px;background:#fff;color:#1a1410;}
+.scn-modal .scn-dlg-in:focus{outline:none;border-color:#8a6828;}
+.scn-modal .scn-dlg-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+.scn-modal .scn-dlg-btns button{font-family:'Jost',sans-serif;font-size:0.7rem;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid #c8b890;background:#ede8de;color:#3a2e22;}
+.scn-modal .scn-dlg-btns button.ok{background:#2a2218;color:#f5e5c0;border-color:#2a2218;}
+.scn-modal .scn-dlg-btns button:hover{filter:brightness(1.08);}
+
 /* HEADER */
 .hdr{padding:1rem 1.5rem 0.75rem;border-bottom:1px solid #e0d8cc;background:#fff;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
 .hdr-left{flex:1;min-width:200px;}
@@ -32,6 +57,27 @@ body{font-family:'Jost',sans-serif;background:#f7f4ef;color:#1a1410;font-size:13
 .mbtn.on{background:#2a2218;color:#f5e5c0;border-color:#2a2218;}
 .mem-info{background:#f0ede6;border:1px solid #d4c0a0;border-radius:5px;padding:5px 10px;font-size:0.62rem;color:#6a5030;line-height:1.6;text-align:right;display:none;}
 .mem-info.show{display:block;}
+
+/* COLLAPSIBLE SECTIONS */
+.sec{background:#faf7f2;border-bottom:1px solid #e0d8cc;}
+.sec-head{display:flex;align-items:center;gap:8px;padding:8px 1.5rem;cursor:pointer;user-select:none;background:#f0ece4;border-bottom:1px solid #e0d8cc;transition:background 0.12s;}
+.sec-head:hover{background:#e8e2d4;}
+.sec-head .sec-chev{display:inline-block;width:10px;color:#7a6e62;font-size:0.75rem;transition:transform 0.15s;}
+.sec.collapsed .sec-head .sec-chev{transform:rotate(-90deg);}
+.sec-head .sec-ttl{font-size:0.7rem;font-weight:500;color:#3a2e22;letter-spacing:0.06em;text-transform:uppercase;}
+.sec-head .sec-note{font-size:0.58rem;color:#9a8e82;font-style:italic;margin-left:auto;}
+.sec-body{padding:0.65rem 1.5rem;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+.sec.collapsed .sec-body{display:none;}
+
+/* Pre-sections strip (always visible): year tabs */
+.gbar{background:#faf7f2;border-bottom:1px solid #e0d8cc;padding:0.5rem 1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+
+/* Weekday/Weekend slider pair */
+.cg-pair .cc-row{display:flex;align-items:center;gap:4px;}
+.cg-pair .cc-sub{font-size:0.55rem;color:#9a8e82;text-transform:uppercase;letter-spacing:0.06em;width:16px;text-align:right;}
+.cg-pair .cc-sub.we{color:#b8783c;}
+.cg-pair input[type="range"]{width:78px;}
+.cg-pair input.we-range{accent-color:#b8783c;}
 
 /* CONTROLS */
 .ctrl{background:#faf7f2;border-bottom:1px solid #e0d8cc;padding:0.65rem 1.5rem;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
@@ -204,6 +250,15 @@ tr.ebitda-tr td{font-weight:500;}
 </head>
 <body>
 
+<div class="scnbar">
+  <span class="scn-label">Scenario</span>
+  <select id="scnSelect" disabled><option>Connecting…</option></select>
+  <button id="scnSaveAs" onclick="dmSaveAs()" disabled title="Duplicate current settings as a new named scenario">Save As…</button>
+  <button id="scnRename" onclick="dmRename()" disabled title="Rename the active scenario">Rename</button>
+  <button id="scnDelete" onclick="dmDelete()" disabled title="Delete the active scenario">Delete</button>
+  <span class="scn-status" id="scnStatus">Connecting…</span>
+</div>
+
 <div class="hdr">
   <div class="hdr-left">
     <div class="h-title">Den Mother — New Concept Financial Model</div>
@@ -212,7 +267,7 @@ tr.ebitda-tr td{font-weight:500;}
       <div class="bl"><div class="bl-l">Current rev / mo</div><div class="bl-v">~$180K</div><div class="bl-n">Jan/Feb 2026 avg</div></div>
       <div class="bl"><div class="bl-l">Labor %</div><div class="bl-v">32.3%</div><div class="bl-n">P&L anchored</div></div>
       <div class="bl"><div class="bl-l">Target EBITDA</div><div class="bl-v">≥15%</div><div class="bl-n">minimum</div></div>
-      <div class="bl"><div class="bl-l">Year 1</div><div class="bl-v">2027</div><div class="bl-n">mid-year open</div></div>
+      <div class="bl"><div class="bl-l">Year 1</div><div class="bl-v">2028</div><div class="bl-n">mid-year open</div></div>
     </div>
   </div>
   <div class="mem-toggle">
@@ -227,108 +282,133 @@ tr.ebitda-tr td{font-weight:500;}
   </div>
 </div>
 
-<!-- REVENUE CONTROLS — per-day tickets model -->
-<div class="ctrl">
-  <!-- CONTRAST PODS -->
-  <div class="cg">
-    <div class="cl">Pod rate / hr</div>
-    <div class="cc"><input type="range" min="75" max="200" step="5" id="podRate" value="125" style="width:78px;" oninput="go()"><span class="cv" id="podRateV">$125</span></div>
+<!-- ALWAYS-VISIBLE: year tabs -->
+<div class="gbar">
+  <div class="ybtns">
+    <button class="yb on" onclick="setYear(0,this)">2028</button>
+    <button class="yb" onclick="setYear(1,this)">2029</button>
+    <button class="yb" onclick="setYear(2,this)">2030</button>
   </div>
-  <div class="cg">
-    <div class="cl">Pod uses / day (2 pods)</div>
-    <div class="cc"><input type="range" min="0" max="30" step="1" id="podUses" value="10" style="width:78px;" oninput="go()"><span class="cv" id="podUsesV">10</span></div>
-  </div>
+</div>
 
-  <!-- TREATMENT ROOMS -->
-  <div class="cg">
-    <div class="cl">Treatment rooms</div>
-    <div class="trow">
-      <button class="tb" id="r2" onclick="setRooms(2,this)">2</button>
-      <button class="tb on" id="r3" onclick="setRooms(3,this)">3</button>
-      <button class="tb" id="r4" onclick="setRooms(4,this)">4</button>
+<!-- ── SECTION: PRICES & RATES ─────────────────────────────────────────── -->
+<div class="sec" id="sec-prices">
+  <div class="sec-head" onclick="toggleSection('prices')">
+    <span class="sec-chev">▾</span>
+    <span class="sec-ttl">Prices &amp; rates</span>
+    <span class="sec-note">flat across the week</span>
+  </div>
+  <div class="sec-body">
+    <div class="cg">
+      <div class="cl">Pod rate / hr</div>
+      <div class="cc"><input type="range" min="75" max="200" step="5" id="podRate" value="125" style="width:78px;" oninput="go()"><span class="cv" id="podRateV">$125</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">Massage price</div>
+      <div class="cc"><input type="range" min="80" max="250" step="5" id="massagePrice" value="155" style="width:78px;" oninput="go()"><span class="cv" id="massagePriceV">$155</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">Acupuncture price</div>
+      <div class="cc"><input type="range" min="60" max="220" step="5" id="acuPrice" value="145" style="width:78px;" oninput="go()"><span class="cv" id="acuPriceV">$145</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">Facial price</div>
+      <div class="cc"><input type="range" min="60" max="220" step="5" id="facialPrice" value="125" style="width:78px;" oninput="go()"><span class="cv" id="facialPriceV">$125</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">Yoga / person</div>
+      <div class="cc"><input type="range" min="20" max="40" step="1" id="yogaPrice" value="28" style="width:78px;" oninput="go()"><span class="cv" id="yogaPriceV">$28</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">Garden massage price</div>
+      <div class="cc"><input type="range" min="60" max="200" step="5" id="gardenPrice" value="120" style="width:78px;" oninput="go()"><span class="cv" id="gardenPriceV">$120</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">F&amp;B avg ticket</div>
+      <div class="cc"><input type="range" min="8" max="35" step="1" id="fnbTicket" value="18" style="width:65px;" oninput="go()"><span class="cv" id="fnbTicketV">$18</span></div>
     </div>
   </div>
-  <div class="cg">
-    <div class="cl">Soft tissue massage / day</div>
-    <div class="cc"><input type="range" min="0" max="30" step="1" id="massageUses" value="8" style="width:78px;" oninput="go()"><span class="cv" id="massageUsesV">8</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">Massage price</div>
-    <div class="cc"><input type="range" min="80" max="250" step="5" id="massagePrice" value="155" style="width:78px;" oninput="go()"><span class="cv" id="massagePriceV">$155</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">Acupuncture / day</div>
-    <div class="cc"><input type="range" min="0" max="20" step="1" id="acuUses" value="4" style="width:78px;" oninput="go()"><span class="cv" id="acuUsesV">4</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">Acupuncture price</div>
-    <div class="cc"><input type="range" min="60" max="220" step="5" id="acuPrice" value="145" style="width:78px;" oninput="go()"><span class="cv" id="acuPriceV">$145</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">Facials / day</div>
-    <div class="cc"><input type="range" min="0" max="20" step="1" id="facialUses" value="6" style="width:78px;" oninput="go()"><span class="cv" id="facialUsesV">6</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">Facial price</div>
-    <div class="cc"><input type="range" min="60" max="220" step="5" id="facialPrice" value="125" style="width:78px;" oninput="go()"><span class="cv" id="facialPriceV">$125</span></div>
-  </div>
+</div>
 
-  <!-- YOGA -->
-  <div class="cg">
-    <div class="cl">Yoga attendees / class</div>
-    <div class="cc"><input type="range" min="15" max="30" step="1" id="yogaAtt" value="20" style="width:78px;" oninput="go()"><span class="cv" id="yogaAttV">20</span></div>
+<!-- ── SECTION: DAILY VOLUME (weekday vs weekend) ──────────────────────── -->
+<div class="sec" id="sec-volumes">
+  <div class="sec-head" onclick="toggleSection('volumes')">
+    <span class="sec-chev">▾</span>
+    <span class="sec-ttl">Daily volume — weekday vs weekend</span>
+    <span class="sec-note">weekend = Fri / Sat / Sun · 4 weekday + 3 weekend days / wk</span>
   </div>
-  <div class="cg">
-    <div class="cl">Yoga / person</div>
-    <div class="cc"><input type="range" min="20" max="40" step="1" id="yogaPrice" value="28" style="width:78px;" oninput="go()"><span class="cv" id="yogaPriceV">$28</span></div>
+  <div class="sec-body">
+    <div class="cg cg-pair">
+      <div class="cl">Pod uses / day (2 pods)</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="30" step="1" id="podUsesWd" value="10" oninput="go()"><span class="cv" id="podUsesWdV">10</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="30" step="1" id="podUsesWe" value="10" class="we-range" oninput="go()"><span class="cv" id="podUsesWeV">10</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Soft tissue massage / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="30" step="1" id="massageUsesWd" value="8" oninput="go()"><span class="cv" id="massageUsesWdV">8</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="30" step="1" id="massageUsesWe" value="8" class="we-range" oninput="go()"><span class="cv" id="massageUsesWeV">8</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Acupuncture / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="20" step="1" id="acuUsesWd" value="4" oninput="go()"><span class="cv" id="acuUsesWdV">4</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="20" step="1" id="acuUsesWe" value="4" class="we-range" oninput="go()"><span class="cv" id="acuUsesWeV">4</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Facials / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="20" step="1" id="facialUsesWd" value="6" oninput="go()"><span class="cv" id="facialUsesWdV">6</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="20" step="1" id="facialUsesWe" value="6" class="we-range" oninput="go()"><span class="cv" id="facialUsesWeV">6</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Yoga attendees / class</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="30" step="1" id="yogaAttWd" value="20" oninput="go()"><span class="cv" id="yogaAttWdV">20</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="30" step="1" id="yogaAttWe" value="20" class="we-range" oninput="go()"><span class="cv" id="yogaAttWeV">20</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Yoga classes / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="8" step="1" id="yogaClassesWd" value="4" oninput="go()"><span class="cv" id="yogaClassesWdV">4</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="8" step="1" id="yogaClassesWe" value="4" class="we-range" oninput="go()"><span class="cv" id="yogaClassesWeV">4</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">Garden massages / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="20" step="1" id="gardenSalesWd" value="4" oninput="go()"><span class="cv" id="gardenSalesWdV">4</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="20" step="1" id="gardenSalesWe" value="4" class="we-range" oninput="go()"><span class="cv" id="gardenSalesWeV">4</span></div>
+    </div>
+    <div class="cg cg-pair">
+      <div class="cl">F&amp;B covers / day</div>
+      <div class="cc-row"><span class="cc-sub">Wd</span><input type="range" min="0" max="120" step="5" id="fnbCoversWd" value="60" oninput="go()"><span class="cv" id="fnbCoversWdV">60</span></div>
+      <div class="cc-row"><span class="cc-sub we">We</span><input type="range" min="0" max="120" step="5" id="fnbCoversWe" value="60" class="we-range" oninput="go()"><span class="cv" id="fnbCoversWeV">60</span></div>
+    </div>
   </div>
-  <div class="cg">
-    <div class="cl">Yoga classes / day</div>
-    <div class="cc"><input type="range" min="1" max="8" step="1" id="yogaClasses" value="4" style="width:78px;" oninput="go()"><span class="cv" id="yogaClassesV">4</span></div>
-  </div>
+</div>
 
-  <!-- GARDEN MASSAGE -->
-  <div class="cg">
-    <div class="cl">Garden massages / day</div>
-    <div class="cc"><input type="range" min="0" max="20" step="1" id="gardenSales" value="4" style="width:78px;" oninput="go()"><span class="cv" id="gardenSalesV">4</span></div>
+<!-- ── SECTION: OPERATIONS ─────────────────────────────────────────────── -->
+<div class="sec" id="sec-ops">
+  <div class="sec-head" onclick="toggleSection('ops')">
+    <span class="sec-chev">▾</span>
+    <span class="sec-ttl">Operations</span>
+    <span class="sec-note">capacity, staffing, events, growth</span>
   </div>
-  <div class="cg">
-    <div class="cl">Garden massage price</div>
-    <div class="cc"><input type="range" min="60" max="200" step="5" id="gardenPrice" value="120" style="width:78px;" oninput="go()"><span class="cv" id="gardenPriceV">$120</span></div>
-  </div>
-
-  <!-- STAFFING (cost-side) -->
-  <div class="cg">
-    <div class="cl">Therapists on site</div>
-    <div class="cc"><input type="range" min="1" max="6" step="1" id="txStaff" value="4" style="width:55px;" oninput="go()"><span class="cv" id="txStaffV">4</span></div>
-  </div>
-
-  <!-- F&B -->
-  <div class="cg">
-    <div class="cl">F&B covers / day</div>
-    <div class="cc"><input type="range" min="0" max="120" step="5" id="fnbCovers" value="60" style="width:70px;" oninput="go()"><span class="cv" id="fnbCoversV">60</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">F&B avg ticket</div>
-    <div class="cc"><input type="range" min="8" max="35" step="1" id="fnbTicket" value="18" style="width:65px;" oninput="go()"><span class="cv" id="fnbTicketV">$18</span></div>
-  </div>
-
-  <!-- EVENTS + GROWTH -->
-  <div class="cg" id="evtCtrl">
-    <div class="cl">Events / yr</div>
-    <div class="cc"><input type="range" min="0" max="60" step="2" id="evts" value="16" style="width:65px;" oninput="go()"><span class="cv" id="evtsV">16</span></div>
-  </div>
-  <div class="cg">
-    <div class="cl">YoY growth</div>
-    <div class="cc"><input type="range" min="0" max="25" step="1" id="yoyGrowth" value="0" style="width:70px;" oninput="go()"><span class="cv" id="yoyGrowthV">0%</span></div>
-  </div>
-
-  <div class="ybtns">
-    <button class="yb on" onclick="setYear(0,this)">2027</button>
-    <button class="yb" onclick="setYear(1,this)">2028</button>
-    <button class="yb" onclick="setYear(2,this)">2029</button>
-    <button class="yb" onclick="setYear(3,this)">2030</button>
-    <button class="yb" onclick="setYear(4,this)">2031</button>
+  <div class="sec-body">
+    <div class="cg">
+      <div class="cl">Treatment rooms</div>
+      <div class="trow">
+        <button class="tb" id="r2" onclick="setRooms(2,this)">2</button>
+        <button class="tb on" id="r3" onclick="setRooms(3,this)">3</button>
+        <button class="tb" id="r4" onclick="setRooms(4,this)">4</button>
+      </div>
+    </div>
+    <div class="cg">
+      <div class="cl">Therapists on site</div>
+      <div class="cc"><input type="range" min="1" max="6" step="1" id="txStaff" value="4" style="width:55px;" oninput="go()"><span class="cv" id="txStaffV">4</span></div>
+    </div>
+    <div class="cg" id="evtCtrl">
+      <div class="cl">Events / yr</div>
+      <div class="cc"><input type="range" min="0" max="60" step="2" id="evts" value="16" style="width:65px;" oninput="go()"><span class="cv" id="evtsV">16</span></div>
+    </div>
+    <div class="cg">
+      <div class="cl">YoY growth</div>
+      <div class="cc"><input type="range" min="0" max="25" step="1" id="yoyGrowth" value="0" style="width:70px;" oninput="go()"><span class="cv" id="yoyGrowthV">0%</span></div>
+    </div>
   </div>
 </div>
 
@@ -427,18 +507,53 @@ tr.ebitda-tr td{font-weight:500;}
 <div class="footnote" id="footnote"></div>
 
 <script>
-const YEARS   = ['2027','2028','2029','2030','2031'];
+const YEARS   = ['2028','2029','2030'];
 const POD_COUNT = 2; // contrast pods — fixed at 2 in this version
 let mode = 'none', roomCount = 3, yearIdx = 0;
 
+// ── Weekday/Weekend operating-day split ──────────────────────────────────
+// Weekends = Fri/Sat/Sun (3 of 7 days). We preserve the original annual
+// operating-day totals and split proportionally:
+//   service streams: 300 days/yr → 171 weekday + 129 weekend
+//   garden (seasonal): 280 → 160 + 120
+//   F&B kiosk:         250 → 143 + 107
+const SVC_WD    = 171, SVC_WE    = 129;
+const GARDEN_WD = 160, GARDEN_WE = 120;
+const FNB_WD    = 143, FNB_WE    = 107;
+
 // Per-year slider state
-const SLIDER_IDS = ['podRate','podUses',
-                    'massageUses','massagePrice','acuUses','acuPrice','facialUses','facialPrice',
-                    'yogaAtt','yogaPrice','yogaClasses',
-                    'gardenSales','gardenPrice',
-                    'txStaff','fnbCovers','fnbTicket','evts',
-                    'rent','util','memFee','memCount','memEvts'];
-const yearState = [{},{},{},{},{}]; // one object per year
+const SLIDER_IDS = [
+  // Prices & rates
+  'podRate','massagePrice','acuPrice','facialPrice','yogaPrice','gardenPrice','fnbTicket',
+  // Volumes — weekday / weekend pairs
+  'podUsesWd','podUsesWe',
+  'massageUsesWd','massageUsesWe',
+  'acuUsesWd','acuUsesWe',
+  'facialUsesWd','facialUsesWe',
+  'yogaAttWd','yogaAttWe',
+  'yogaClassesWd','yogaClassesWe',
+  'gardenSalesWd','gardenSalesWe',
+  'fnbCoversWd','fnbCoversWe',
+  // Operations
+  'txStaff','evts',
+  // Membership
+  'memFee','memCount','memEvts',
+  // Fixed expenses (live in their own section but per-year)
+  'rent','util'
+];
+// Old single-volume keys → new (weekday, weekend) pairs. Used at load time to
+// migrate scenarios saved before the weekend split existed.
+const VOLUME_MIGRATIONS = [
+  ['podUses',     'podUsesWd',     'podUsesWe'],
+  ['massageUses', 'massageUsesWd', 'massageUsesWe'],
+  ['acuUses',     'acuUsesWd',     'acuUsesWe'],
+  ['facialUses',  'facialUsesWd',  'facialUsesWe'],
+  ['yogaAtt',     'yogaAttWd',     'yogaAttWe'],
+  ['yogaClasses', 'yogaClassesWd', 'yogaClassesWe'],
+  ['gardenSales', 'gardenSalesWd', 'gardenSalesWe'],
+  ['fnbCovers',   'fnbCoversWd',   'fnbCoversWe'],
+];
+const yearState = YEARS.map(() => ({})); // one object per year
 function saveYear(i) {
   SLIDER_IDS.forEach(id => yearState[i][id] = v(id));
   yearState[i].roomCount = roomCount;
@@ -446,7 +561,11 @@ function saveYear(i) {
 function loadYear(i) {
   const s = yearState[i];
   if (!s.podRate) return; // not yet saved
-  SLIDER_IDS.forEach(id => { document.getElementById(id).value = s[id]; });
+  SLIDER_IDS.forEach(id => {
+    if (s[id] === undefined) return;          // skip missing keys (legacy migration)
+    const el = document.getElementById(id);
+    if (el) el.value = s[id];
+  });
   roomCount = s.roomCount;
   // update room button highlights
   ['r2','r3','r4'].forEach(id => document.getElementById(id).classList.remove('on'));
@@ -507,6 +626,23 @@ function setYear(i, el) {
   go();
 }
 function v(id) { return +document.getElementById(id).value; }
+
+// ── COLLAPSIBLE SECTIONS ────────────────────────────────────────────────
+function toggleSection(id) {
+  const sec = document.getElementById('sec-'+id);
+  if (!sec) return;
+  sec.classList.toggle('collapsed');
+  try { localStorage.setItem('dm_sec_'+id, sec.classList.contains('collapsed') ? '1' : '0'); } catch {}
+}
+// Restore collapsed state on load
+['prices','volumes','ops'].forEach(id => {
+  try {
+    if (localStorage.getItem('dm_sec_'+id) === '1') {
+      const sec = document.getElementById('sec-'+id);
+      if (sec) sec.classList.add('collapsed');
+    }
+  } catch {}
+});
 function fmtCapex(el) {
   const raw = el.value.replace(/[^0-9]/g, '');
   const num = parseInt(raw) || 0;
@@ -550,32 +686,29 @@ function yv(yr, id) {
   if (yr === yearIdx) return v(id);
   return yearState[yr][id] !== undefined ? yearState[yr][id] : v(id);
 }
-// ── REVENUE — pure per-service-per-day model ─────────────────────────────
-// Operating days per stream (kept consistent with v1 conventions for cost parity):
-//   service streams: 300 days/yr  ·  garden: 280 (seasonal)  ·  F&B: 250
+// ── REVENUE — per-service per-day with weekday/weekend split ─────────────
+// Annual units = weekday/day × SVC_WD + weekend/day × SVC_WE (per stream).
 function calcRev(yr) {
   const gf    = getGrowthFactor(yr);
   const isMem = mode === 'mem';
   const disc  = isMem ? (1 - 0.30 * 0.20) : 1; // 30% of bookings get 20% off
 
-  const SVC_DAYS    = 300;
-  const GARDEN_DAYS = 280;
-  const FNB_DAYS    = 250;
+  // helpers
+  const svcAnnual    = (wd, we) => wd * SVC_WD    + we * SVC_WE;
+  const gardenAnnual = (wd, we) => wd * GARDEN_WD + we * GARDEN_WE;
+  const fnbAnnual    = (wd, we) => wd * FNB_WD    + we * FNB_WE;
 
-  // PODS: 2 pods, but uses/day is a single pooled number across them
-  const podUses = yv(yr,'podUses');
-  const podRate = yv(yr,'podRate');
-  // each "use" assumed to be ~1 hr
-  const podCap$ = podUses * podRate * SVC_DAYS;
+  // PODS: 2 pods, pooled uses/day
+  const podRate       = yv(yr,'podRate');
+  const annualPodUses = svcAnnual(yv(yr,'podUsesWd'), yv(yr,'podUsesWe'));
   let podRev = 0, memRev = 0, podDeduct = 0;
 
   if (!isMem) {
-    podRev = podCap$ * gf;
+    podRev = annualPodUses * podRate * gf;
   } else {
     const mc = yv(yr,'memCount');
     const mf = yv(yr,'memFee');
     // members get 3 sessions/week → 156/yr each, capped at 60% of pod throughput
-    const annualPodUses = podUses * SVC_DAYS;
     const sessYr = Math.min(mc * 156, annualPodUses * 0.60);
     podDeduct = sessYr * podRate;
     const remainingUses = Math.max(0, annualPodUses - sessYr);
@@ -583,23 +716,25 @@ function calcRev(yr) {
     memRev = mc * mf * 12 * gf;
   }
 
-  // TREATMENT-ROOM SERVICES — per-service per-day with own price
-  const massageRev = yv(yr,'massageUses') * yv(yr,'massagePrice') * SVC_DAYS * disc * gf;
-  const acuRev     = yv(yr,'acuUses')     * yv(yr,'acuPrice')     * SVC_DAYS * disc * gf;
-  const facialRev  = yv(yr,'facialUses')  * yv(yr,'facialPrice')  * SVC_DAYS * disc * gf;
+  // TREATMENT-ROOM SERVICES
+  const massageRev = svcAnnual(yv(yr,'massageUsesWd'), yv(yr,'massageUsesWe')) * yv(yr,'massagePrice') * disc * gf;
+  const acuRev     = svcAnnual(yv(yr,'acuUsesWd'),     yv(yr,'acuUsesWe'))     * yv(yr,'acuPrice')     * disc * gf;
+  const facialRev  = svcAnnual(yv(yr,'facialUsesWd'),  yv(yr,'facialUsesWe'))  * yv(yr,'facialPrice')  * disc * gf;
 
-  // YOGA: attendees/class × price × classes/day × 300 days
-  const yogaRev = yv(yr,'yogaAtt') * yv(yr,'yogaPrice') * yv(yr,'yogaClasses') * SVC_DAYS * gf;
+  // YOGA: weekday seats = att_wd × classes_wd × WD_days; same for weekend.
+  const yogaSeats = yv(yr,'yogaAttWd') * yv(yr,'yogaClassesWd') * SVC_WD
+                  + yv(yr,'yogaAttWe') * yv(yr,'yogaClassesWe') * SVC_WE;
+  const yogaRev   = yogaSeats * yv(yr,'yogaPrice') * gf;
 
   // GARDEN MASSAGE: sales/day × price × seasonal days
-  const gardenRev = yv(yr,'gardenSales') * yv(yr,'gardenPrice') * GARDEN_DAYS * disc * gf;
+  const gardenRev = gardenAnnual(yv(yr,'gardenSalesWd'), yv(yr,'gardenSalesWe')) * yv(yr,'gardenPrice') * disc * gf;
 
   // EVENTS: avg $3,800 each
   const evts     = isMem ? yv(yr,'memEvts') : yv(yr,'evts');
   const eventRev = evts * 3800 * gf;
 
-  // F&B kiosk: covers/day × avg ticket × 250 operating days
-  const fnbRev = yv(yr,'fnbCovers') * yv(yr,'fnbTicket') * FNB_DAYS * gf;
+  // F&B kiosk: covers/day × avg ticket × operating days
+  const fnbRev = fnbAnnual(yv(yr,'fnbCoversWd'), yv(yr,'fnbCoversWe')) * yv(yr,'fnbTicket') * gf;
 
   // RETAIL: 9% of service revenue (per actual P&L ratio)
   const svcRev    = podRev + yogaRev + massageRev + acuRev + facialRev + gardenRev;
@@ -621,16 +756,17 @@ function calcCosts(yr, rev) {
   const rentMo = yv(yr,'rent'), utilMo = yv(yr,'util');
   const rent   = rentMo * 12;
   const utils  = utilMo * 12;
-  // Staff: fixed regardless of year (slight annual wage inflation)
-  const wageInfl = [1.0, 1.03, 1.06, 1.09, 1.12][yr];
+  // Staff: fixed regardless of year (slight annual wage inflation; 3-yr window)
+  const wageInfl = [1.0, 1.03, 1.06][yr];
   const clinic    = 19000 * 12 * wageInfl;
   const gm        = 7500  * 12 * wageInfl;
   const therapist = 20000 * 12 * wageInfl;
   const bonus     = (rev.massageRev + rev.acuRev + rev.facialRev + rev.gardenRev) * 0.115;
-  const yoga      = 45 * yv(yr,'yogaClasses') * 300; // $45/hr × classes/day × 300 days
+  // Yoga instructor: $45/hr × (weekday classes × WD days + weekend classes × WE days)
+  const yoga      = 45 * (yv(yr,'yogaClassesWd') * SVC_WD + yv(yr,'yogaClassesWe') * SVC_WE);
   const staff     = clinic + gm + therapist + bonus + yoga;
   const cogs      = rev.total * 0.09;
-  const mkt       = rev.total * [0.07,0.06,0.05,0.045,0.04][yr];
+  const mkt       = rev.total * [0.07,0.06,0.05][yr];
   const ins       = 14400;
   const soft      = 21600;
   const misc      = rev.total * 0.025;
@@ -651,27 +787,28 @@ function bw(v,mx) { return Math.min(100,Math.round(Math.abs(v)/mx*100))+'%'; }
 // ── MAIN RENDER ──────────────────────────────────────────────────────────
 function go() {
   // update display values
+  // Prices (single, flat across the week)
   document.getElementById('podRateV').textContent      = '$'+v('podRate');
-  document.getElementById('podUsesV').textContent      = v('podUses');
-  document.getElementById('massageUsesV').textContent  = v('massageUses');
   document.getElementById('massagePriceV').textContent = '$'+v('massagePrice');
-  document.getElementById('acuUsesV').textContent      = v('acuUses');
   document.getElementById('acuPriceV').textContent     = '$'+v('acuPrice');
-  document.getElementById('facialUsesV').textContent   = v('facialUses');
   document.getElementById('facialPriceV').textContent  = '$'+v('facialPrice');
-  document.getElementById('yogaAttV').textContent      = v('yogaAtt');
   document.getElementById('yogaPriceV').textContent    = '$'+v('yogaPrice');
-  document.getElementById('yogaClassesV').textContent  = v('yogaClasses');
-  document.getElementById('gardenSalesV').textContent  = v('gardenSales');
   document.getElementById('gardenPriceV').textContent  = '$'+v('gardenPrice');
-  document.getElementById('txStaffV').textContent      = v('txStaff');
-  document.getElementById('fnbCoversV').textContent    = v('fnbCovers');
   document.getElementById('fnbTicketV').textContent    = '$'+v('fnbTicket');
+  // Volumes — weekday/weekend pairs
+  [['podUses'],['massageUses'],['acuUses'],['facialUses'],
+   ['yogaAtt'],['yogaClasses'],['gardenSales'],['fnbCovers']].forEach(([base]) => {
+    document.getElementById(base+'WdV').textContent = v(base+'Wd');
+    document.getElementById(base+'WeV').textContent = v(base+'We');
+  });
+  // Operations
+  document.getElementById('txStaffV').textContent      = v('txStaff');
   document.getElementById('evtsV').textContent         = v('evts');
+  document.getElementById('yoyGrowthV').textContent    = v('yoyGrowth')+'%';
+  // Membership
   document.getElementById('memFeeV').textContent       = '$'+v('memFee');
   document.getElementById('memCountV').textContent     = v('memCount');
   document.getElementById('memEvtsV').textContent      = v('memEvts');
-  document.getElementById('yoyGrowthV').textContent    = v('yoyGrowth')+'%';
 
   const rentMo = v('rent'), utilMo = v('util');
   document.getElementById('rentV').textContent = '$'+rentMo.toLocaleString();
@@ -720,7 +857,7 @@ function go() {
     <div class="kpi"><div class="kl">Labor % rev</div><div class="kv">${labPct}%</div><div class="ks">target &lt;35%</div></div>
     ${isMem
       ? `<div class="kpi mem"><div class="kl">Membership MRR</div><div class="kv">${fmt(rev.mrr)}</div><div class="ks">${rev.mc} members · $${v('memFee')}/mo</div></div>`
-      : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${POD_COUNT} pods · ${v('podUses')} uses/day · $${v('podRate')}/hr</div></div>`}`;
+      : `<div class="kpi"><div class="kl">Pod revenue</div><div class="kv">${fmt(rev.podRev)}</div><div class="ks">${POD_COUNT} pods · ${v('podUsesWd')}/${v('podUsesWe')} uses/day (wd/we) · $${v('podRate')}/hr</div></div>`}`;
 
   // GAUGE ROW
   const streamOrder = ['podRev','memRev','yogaRev','massageRev','acuRev','facialRev','gardenRev','eventRev','fnbRev','retailRev'];
@@ -818,13 +955,13 @@ function go() {
       <table><thead><tr><th>Line item</th><th></th><th>% rev</th><th>Amount</th></tr></thead><tbody>${costRows}</tbody></table>
     </div>`;
 
-  // 5-YEAR CHART
-  const allRevs = [0,1,2,3,4].map(y => calcRev(y));
+  // MULTI-YEAR CHART
+  const allRevs = YEARS.map((_,y) => calcRev(y));
   const maxT = Math.max(...allRevs.map(r => r.total));
   const allStreamsMap = y => ({podRev:allRevs[y].podRev,memRev:allRevs[y].memRev,yogaRev:allRevs[y].yogaRev,massageRev:allRevs[y].massageRev,acuRev:allRevs[y].acuRev,facialRev:allRevs[y].facialRev,gardenRev:allRevs[y].gardenRev,eventRev:allRevs[y].eventRev,fnbRev:allRevs[y].fnbRev,retailRev:allRevs[y].retailRev});
 
   let bars = '';
-  for (let i=0; i<5; i++) {
+  for (let i=0; i<YEARS.length; i++) {
     const sm = allStreamsMap(i);
     const act = streamOrder.filter(s => sm[s] > 0);
     const stack = act.map(s => {
@@ -838,7 +975,7 @@ function go() {
     </div>`;
   }
   document.getElementById('chartArea').innerHTML = bars;
-  document.getElementById('chartSub').textContent = fmt(allRevs[4].total)+' by 2031';
+  document.getElementById('chartSub').textContent = fmt(allRevs[YEARS.length-1].total)+' by '+YEARS[YEARS.length-1];
   document.getElementById('legend').innerHTML = activeStreams.map(s =>
     `<div class="li"><div class="ld" style="background:${colorMap[s]};"></div>${labelMap[s]}</div>`).join('');
 
@@ -847,24 +984,28 @@ function go() {
   const payPct = v('pbPct') / 100;
   document.getElementById('pbPctV').textContent = v('pbPct') + '%';
 
+  // Year-by-year curves — index 0 is opening year (2028, mid-year). Re-based for 3-year window.
+  const wageInflByYr = [1.0, 1.03, 1.06];
+  const mktPctByYr   = [0.07, 0.06, 0.05];
+
   const ebitdaByYear = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < YEARS.length; i++) {
     const r = allRevs[i];
     const rentMo = yv(i,'rent'), utilMo = yv(i,'util');
-    const wageInfl = [1.0, 1.03, 1.06, 1.09, 1.12][i];
+    const wageInfl = wageInflByYr[i];
     const staffCost = 19000*12*wageInfl + 7500*12*wageInfl + 20000*12*wageInfl
                     + (r.massageRev + r.acuRev + r.facialRev + r.gardenRev)*0.115
-                    + 45 * yv(i,'yogaClasses') * 300;
+                    + 45 * (yv(i,'yogaClassesWd') * SVC_WD + yv(i,'yogaClassesWe') * SVC_WE);
     const totalCost = rentMo*12 + utilMo*12 + staffCost
                     + r.total*0.09
-                    + r.total*[0.07,0.06,0.05,0.045,0.04][i]
+                    + r.total*mktPctByYr[i]
                     + 14400 + 21600
                     + r.total*0.025;
     ebitdaByYear.push(r.total - totalCost);
   }
 
   let cumPaid = 0, paybackYr = null, paybackRows = '';
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < YEARS.length; i++) {
     const ebi = ebitdaByYear[i];
     const applied = ebi * payPct;
     cumPaid += applied;
@@ -1110,7 +1251,352 @@ function bdRefreshTotals() {
   if (frEl) frEl.textContent = 'raise target: $'+Math.round((totalHi*1.15+250000)/1000)+'K – $'+Math.round((totalHi*1.15+400000)/1000)+'K';
 }
 
+// ── MEMORY BRIDGE (snapshot / restore for Firestore) ──────────────────────
+// These run inside the classic-script scope so they can reach the
+// let/const locals (mode, roomCount, yearIdx, yearState, customCosts,
+// costOverrides). The Firebase module script below calls them.
+window.dmSnapshot = function() {
+  // commit current sliders to the active year's bucket before reading
+  saveYear(yearIdx);
+  return {
+    mode, roomCount, yearIdx,
+    yearStates: yearState.map(s => ({...s})),
+    customCosts: customCosts.map(c => ({...c})),
+    costOverrides: {...costOverrides},
+    globals: {
+      yoyGrowth: v('yoyGrowth'),
+      pbPct:     v('pbPct'),
+      pbCapex:   getCapex()
+    }
+  };
+};
+
+window.dmApply = function(d) {
+  if (!d) return;
+  // year states
+  for (let i = 0; i < YEARS.length; i++) {
+    yearState[i] = {...(d.yearStates && d.yearStates[i] || {})};
+    // Migrate legacy single-volume keys → new (weekday, weekend) pairs
+    VOLUME_MIGRATIONS.forEach(([old, wd, we]) => {
+      const s = yearState[i];
+      if (s[old] !== undefined) {
+        if (s[wd] === undefined) s[wd] = s[old];
+        if (s[we] === undefined) s[we] = s[old];
+      }
+    });
+  }
+  // globals
+  const g = d.globals || {};
+  if (g.yoyGrowth != null) document.getElementById('yoyGrowth').value = g.yoyGrowth;
+  if (g.pbPct     != null) document.getElementById('pbPct').value     = g.pbPct;
+  if (g.pbCapex   != null) document.getElementById('pbCapex').value   = (+g.pbCapex).toLocaleString();
+  // custom costs
+  customCosts.length = 0;
+  (d.customCosts || []).forEach(c => customCosts.push({...c}));
+  // cost overrides
+  for (const k in costOverrides) delete costOverrides[k];
+  Object.assign(costOverrides, d.costOverrides || {});
+  // mode
+  mode = d.mode || 'none';
+  document.getElementById('btnNoMem').classList.toggle('on', mode==='none');
+  document.getElementById('btnMem').classList.toggle('on', mode==='mem');
+  document.getElementById('memInfo').classList.toggle('show', mode==='mem');
+  document.getElementById('memCtrl').classList.toggle('show', mode==='mem');
+  document.getElementById('evtCtrl').style.display = mode==='mem' ? 'none' : '';
+  // rooms
+  roomCount = d.roomCount || 3;
+  ['r2','r3','r4'].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove('on'); });
+  const rBtn = document.getElementById('r'+roomCount);
+  if (rBtn) rBtn.classList.add('on');
+  // active year — load its sliders into the live inputs
+  yearIdx = d.yearIdx || 0;
+  document.querySelectorAll('.yb').forEach((b,i) => b.classList.toggle('on', i===yearIdx));
+  loadYear(yearIdx);
+  go();
+};
+
 go();
+</script>
+
+<!-- ── FIREBASE: scenario memory (auto-save, debounced) ──────────────────── -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, addDoc, deleteDoc, updateDoc, setDoc,
+  onSnapshot, serverTimestamp, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDdP2ld3r0HAi8Yj4SY9RSIBuB7107oDIE",
+  authDomain: "den-mother-8c384.firebaseapp.com",
+  projectId: "den-mother-8c384",
+  storageBucket: "den-mother-8c384.firebasestorage.app",
+  messagingSenderId: "767792657609",
+  appId: "1:767792657609:web:825a55b581de34848a0918"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const scenariosCol = collection(db, 'scenarios');
+
+// DOM refs
+const $sel    = document.getElementById('scnSelect');
+const $status = document.getElementById('scnStatus');
+const $saveAs = document.getElementById('scnSaveAs');
+const $rename = document.getElementById('scnRename');
+const $delete = document.getElementById('scnDelete');
+
+// State
+const DRAFT_ID  = '__draft__';                 // virtual dropdown entry for the unsaved working copy
+let scenarios   = [];                          // [{id, name, data, updatedAt}]
+let activeId    = localStorage.getItem('dm_active_scenario') || null;
+let loading     = false;                        // suppress dirty checks while applying
+let hadFirstSnapshot = false;
+let initialApplied   = false;                   // only apply remote state on first load
+let cleanKey    = null;                        // snapshot key of the active scenario's saved state
+let dirty       = false;                       // current state diverges from cleanKey
+
+function setStatus(text, cls) {
+  $status.textContent = text;
+  $status.className = 'scn-status' + (cls ? ' ' + cls : '');
+}
+
+// Stringify a scenario's data for equality comparison.
+// We deliberately ignore yearIdx (which year tab is open) — that's UI state, not data.
+function snapshotKey(s) {
+  if (!s) return '';
+  const c = { ...s, yearIdx: 0 };
+  return JSON.stringify(c);
+}
+
+function refreshStatus() {
+  if (!activeId)          { setStatus('Connecting…'); return; }
+  if (!initialApplied)    { setStatus('Loading…',  'saving'); return; }
+  if (dirty)              { setStatus('Modified — Save As to keep changes', 'modified'); return; }
+  setStatus('Saved', 'saved');
+}
+
+function updateDirty() {
+  if (loading || !initialApplied || !activeId) return;
+  const newDirty = snapshotKey(window.dmSnapshot()) !== cleanKey;
+  if (newDirty === dirty) return;
+  dirty = newDirty;
+  refreshDropdown();
+  setControlsEnabled(true);
+  refreshStatus();
+}
+
+function setControlsEnabled(on) {
+  $sel.disabled = !on;
+  $saveAs.disabled = !on;
+  // Rename/Delete operate on the saved doc — disable while dirty since the
+  // user's working copy is no longer that doc.
+  $rename.disabled = !on || !activeId || dirty;
+  $delete.disabled = !on || !activeId || scenarios.length <= 1 || dirty;
+}
+
+function refreshDropdown() {
+  $sel.innerHTML = '';
+  // Virtual unsaved entry — only present while dirty, always selected when present
+  if (dirty) {
+    const opt = document.createElement('option');
+    opt.value = DRAFT_ID;
+    opt.textContent = '○ Untitled (unsaved)';
+    opt.selected = true;
+    $sel.appendChild(opt);
+  }
+  scenarios.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name || '(untitled)';
+    if (!dirty && s.id === activeId) opt.selected = true;
+    $sel.appendChild(opt);
+  });
+}
+
+function findActive() { return scenarios.find(s => s.id === activeId); }
+
+// Inline naming modal — replaces window.prompt() which Chrome can silently block.
+function askName(title, defaultValue) {
+  return new Promise(resolve => {
+    const wrap = document.createElement('div');
+    wrap.className = 'scn-modal';
+    wrap.innerHTML =
+      '<div class="scn-dlg">' +
+        '<div class="scn-dlg-ttl"></div>' +
+        '<input type="text" class="scn-dlg-in" />' +
+        '<div class="scn-dlg-btns">' +
+          '<button class="cancel">Cancel</button>' +
+          '<button class="ok">OK</button>' +
+        '</div>' +
+      '</div>';
+    wrap.querySelector('.scn-dlg-ttl').textContent = title;
+    const input = wrap.querySelector('input');
+    input.value = defaultValue || '';
+    document.body.appendChild(wrap);
+    setTimeout(() => { input.focus(); input.select(); }, 0);
+    const done = (v) => { wrap.remove(); resolve(v); };
+    wrap.querySelector('.ok').onclick     = () => done(input.value);
+    wrap.querySelector('.cancel').onclick = () => done(null);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  done(input.value);
+      if (e.key === 'Escape') done(null);
+    });
+    wrap.addEventListener('click', e => { if (e.target === wrap) done(null); });
+  });
+}
+
+function applyActive() {
+  const s = findActive();
+  if (!s) return;
+  loading = true;
+  try {
+    window.dmApply(s.data || {});
+    cleanKey = snapshotKey(s.data || {});
+    dirty = false;
+  } finally {
+    setTimeout(() => {
+      loading = false;
+      refreshDropdown();       // remove the virtual entry if it was present
+      setControlsEnabled(true);
+      refreshStatus();
+    }, 50);
+  }
+}
+
+// Wrap the existing global go() so every re-render checks for dirty state.
+const _origGo = window.go;
+window.go = function() {
+  _origGo.apply(this, arguments);
+  updateDirty();
+};
+
+// ── User actions ─────────────────────────────────────────────────────────
+window.dmSwitchScenario = function(id) {
+  if (id === DRAFT_ID) {            // user picked the virtual unsaved entry — no-op
+    $sel.value = DRAFT_ID;
+    return;
+  }
+  if (id === activeId && !dirty) return;
+  if (dirty && !confirm('Discard unsaved changes? Use Save As first to keep them.')) {
+    $sel.value = DRAFT_ID;          // revert dropdown back to the virtual entry
+    return;
+  }
+  activeId = id;
+  localStorage.setItem('dm_active_scenario', id);
+  applyActive();
+};
+$sel.addEventListener('change', e => window.dmSwitchScenario(e.target.value));
+
+window.dmSaveAs = async function() {
+  console.log('[dm] Save As clicked');
+  const raw = await askName('Name this scenario:', '');
+  if (raw === null) return;             // user hit Cancel
+  const name = raw.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  try {
+    setStatus('Creating…', 'saving');
+    const data = window.dmSnapshot();
+    const ref  = await addDoc(scenariosCol, { name, data, updatedAt: serverTimestamp() });
+    activeId  = ref.id;
+    localStorage.setItem('dm_active_scenario', activeId);
+    cleanKey  = snapshotKey(data);
+    dirty     = false;
+    // The new doc will arrive in the next onSnapshot, but update UI now so the
+    // virtual "Untitled" entry disappears immediately.
+    if (!scenarios.some(s => s.id === activeId)) {
+      scenarios = [...scenarios, { id: activeId, name, data }];
+    }
+    refreshDropdown();
+    setControlsEnabled(true);
+    refreshStatus();
+  } catch (e) {
+    console.error('[dm] Save As failed:', e);
+    setStatus('Create failed', 'err');
+  }
+};
+
+window.dmRename = async function() {
+  console.log('[dm] Rename clicked');
+  if (!activeId) { alert('No active scenario yet — wait for "Saved" then try again.'); return; }
+  const cur = findActive();           // may be undefined right after Save As (snapshot lag)
+  const raw = await askName('Rename scenario:', cur?.name || '');
+  if (raw === null) return;           // user hit Cancel
+  const name = raw.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  if (cur && name === cur.name) return; // unchanged — silent no-op
+  try {
+    setStatus('Saving…', 'saving');
+    await updateDoc(doc(scenariosCol, activeId), { name, updatedAt: serverTimestamp() });
+    setStatus('Saved', 'saved');
+  } catch (e) {
+    console.error('[dm] Rename failed:', e);
+    setStatus('Rename failed', 'err');
+  }
+};
+
+window.dmDelete = async function() {
+  const cur = findActive();
+  if (!cur) return;
+  if (scenarios.length <= 1) { alert('Can\'t delete the last scenario.'); return; }
+  if (!confirm(`Delete scenario "${cur.name}"? This cannot be undone.`)) return;
+  try {
+    setStatus('Deleting…', 'saving');
+    const idToDelete = activeId;
+    // switch active first so the snapshot callback doesn't try to apply a deleted doc
+    const next = scenarios.find(s => s.id !== idToDelete);
+    if (next) {
+      activeId = next.id;
+      localStorage.setItem('dm_active_scenario', activeId);
+      applyActive();
+    }
+    await deleteDoc(doc(scenariosCol, idToDelete));
+  } catch (e) {
+    console.error(e); setStatus('Delete failed', 'err');
+  }
+};
+
+// ── Subscribe to scenarios ───────────────────────────────────────────────
+setStatus('Connecting…');
+onSnapshot(query(scenariosCol, orderBy('name')), async (snap) => {
+  scenarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // First-ever load: bootstrap a default scenario from the current UI defaults
+  if (!hadFirstSnapshot && scenarios.length === 0) {
+    hadFirstSnapshot = true;
+    setStatus('Setting up…', 'saving');
+    try {
+      const data = window.dmSnapshot();
+      const ref  = await addDoc(scenariosCol, { name: 'Base case', data, updatedAt: serverTimestamp() });
+      activeId = ref.id;
+      localStorage.setItem('dm_active_scenario', activeId);
+    } catch (e) {
+      console.error(e); setStatus('Setup failed — check Firestore rules', 'err');
+    }
+    return; // the addDoc will trigger another snapshot we'll handle below
+  }
+  hadFirstSnapshot = true;
+
+  // If the previously-active scenario no longer exists, pick the first one
+  if (!activeId || !scenarios.some(s => s.id === activeId)) {
+    activeId = scenarios[0]?.id || null;
+    if (activeId) localStorage.setItem('dm_active_scenario', activeId);
+  }
+
+  refreshDropdown();
+  setControlsEnabled(true);
+
+  // Only apply on the very first snapshot — afterwards, live UI is the source of truth
+  // (use dmSwitchScenario / dmDelete to explicitly reload).
+  if (!initialApplied) {
+    applyActive();
+    initialApplied = true;
+  }
+  refreshStatus();
+}, (err) => {
+  console.error(err);
+  setStatus('Offline — check Firestore rules', 'err');
+});
 </script>
 </body>
 </html>
