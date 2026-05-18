@@ -1272,7 +1272,9 @@ window.dmSnapshot = function() {
 };
 
 window.dmApply = function(d) {
-  if (!d) return;
+  if (!d) { console.warn('[dm] dmApply called with empty data'); return; }
+  console.log('[dm] dmApply received:', d);
+  try {
   // year states
   for (let i = 0; i < YEARS.length; i++) {
     yearState[i] = {...(d.yearStates && d.yearStates[i] || {})};
@@ -1313,6 +1315,41 @@ window.dmApply = function(d) {
   document.querySelectorAll('.yb').forEach((b,i) => b.classList.toggle('on', i===yearIdx));
   loadYear(yearIdx);
   go();
+  console.log('[dm] dmApply finished — mode:', mode, '· roomCount:', roomCount, '· yearIdx:', yearIdx,
+              '· customCosts:', customCosts.length, '· costOverrides keys:', Object.keys(costOverrides).length);
+  } catch (e) {
+    console.error('[dm] dmApply CRASHED:', e);
+    // Surface to user via scenarios bar
+    const s = document.getElementById('scnStatus');
+    if (s) { s.textContent = 'Restore failed — see console'; s.className = 'scn-status err'; }
+  }
+};
+
+// Console diagnostic: window.dmAudit()
+// Compares live state against the currently-active saved scenario and prints
+// any mismatches. Run from devtools after a reload to verify save fidelity.
+window.dmAudit = function() {
+  const live = window.dmSnapshot();
+  console.group('[dm] AUDIT');
+  console.log('Live snapshot:', live);
+  // ask the Firebase layer for the active scenario (set by the module script)
+  const active = window.__dmActiveScenario;
+  if (!active) {
+    console.warn('No active scenario yet — try again once "Saved" appears in green.');
+    console.groupEnd();
+    return live;
+  }
+  console.log('Saved scenario:', active);
+  console.log('Saved.data:', active.data);
+  // Compare top-level fields
+  const fields = ['mode','roomCount','yearIdx','customCosts','costOverrides','yearStates','globals'];
+  fields.forEach(f => {
+    const a = JSON.stringify(live[f]);
+    const b = JSON.stringify(active.data?.[f]);
+    if (a !== b) console.warn(`MISMATCH · ${f}\n  live :`, live[f], '\n  saved:', active.data?.[f]);
+  });
+  console.groupEnd();
+  return { live, saved: active.data };
 };
 
 go();
@@ -1449,10 +1486,15 @@ function askName(title, defaultValue) {
 function applyActive() {
   const s = findActive();
   if (!s) return;
+  window.__dmActiveScenario = s;          // expose for dmAudit()
   loading = true;
   try {
     window.dmApply(s.data || {});
-    cleanKey = snapshotKey(s.data || {});
+    // IMPORTANT: compute cleanKey from the LIVE snapshot post-apply, not from
+    // the raw saved data. Otherwise legacy migrations (e.g. podUses → podUsesWd/We)
+    // produce extra keys live that don't exist in the saved key, flipping the
+    // UI to "Modified" the moment a scenario loads.
+    cleanKey = snapshotKey(window.dmSnapshot());
     dirty = false;
   } finally {
     setTimeout(() => {
@@ -1497,7 +1539,9 @@ window.dmSaveAs = async function() {
   try {
     setStatus('Creating…', 'saving');
     const data = window.dmSnapshot();
+    console.log('[dm] Save As writing:', { name, data });
     const ref  = await addDoc(scenariosCol, { name, data, updatedAt: serverTimestamp() });
+    console.log('[dm] Save As wrote doc:', ref.id);
     activeId  = ref.id;
     localStorage.setItem('dm_active_scenario', activeId);
     cleanKey  = snapshotKey(data);
@@ -1506,13 +1550,17 @@ window.dmSaveAs = async function() {
     // virtual "Untitled" entry disappears immediately.
     if (!scenarios.some(s => s.id === activeId)) {
       scenarios = [...scenarios, { id: activeId, name, data }];
+      window.__dmActiveScenario = { id: activeId, name, data };
     }
     refreshDropdown();
     setControlsEnabled(true);
     refreshStatus();
   } catch (e) {
     console.error('[dm] Save As failed:', e);
-    setStatus('Create failed', 'err');
+    // Show the actual reason in the status bar (truncated) so the user notices
+    const msg = (e && e.message) ? e.message.slice(0,80) : 'unknown error';
+    setStatus('Save failed: ' + msg, 'err');
+    alert('Save failed:\n\n' + (e?.message || e) + '\n\nCheck the browser console for details.');
   }
 };
 
@@ -1585,6 +1633,7 @@ onSnapshot(query(scenariosCol, orderBy('name')), async (snap) => {
 
   refreshDropdown();
   setControlsEnabled(true);
+  window.__dmActiveScenario = scenarios.find(s => s.id === activeId);
 
   // Only apply on the very first snapshot — afterwards, live UI is the source of truth
   // (use dmSwitchScenario / dmDelete to explicitly reload).
